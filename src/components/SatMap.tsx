@@ -4,7 +4,7 @@ import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import OlFill from 'ol/style/Fill';
 import OlText from 'ol/style/Text';
-import OlFeature, { FeatureLike } from 'ol/Feature';
+import OlFeature from 'ol/Feature';
 import OlPoint from 'ol/geom/Point';
 import OlStyle from 'ol/style/Style';
 import OlStroke from 'ol/style/Stroke';
@@ -15,6 +15,7 @@ import OlLayerTile from 'ol/layer/Tile';
 import OlSourceOsm from 'ol/source/OSM';
 import { fromLonLat } from 'ol/proj';
 import { LatLong, SatellitePosition } from '../util/SharedTypes';
+import { StyleFunction } from 'openlayers';
 
 export type Props = {
   userLocation: LatLong;
@@ -58,7 +59,7 @@ class SatMap extends React.Component<Props, State> {
     this.generateSatMapLayer = this.generateSatMapLayer.bind(this);
   }
   
-  satMapMarkerStyle(feature: FeatureLike, zoomLevel: number) {
+  satMapMarkerStyle(feature: OlFeature, zoomLevel: number) {
     return [
       new OlStyle({
         image: new OlCircle({
@@ -91,7 +92,7 @@ class SatMap extends React.Component<Props, State> {
       ),
       name: sat.name
     });
-    mapFeature.setStyle(this.satMapMarkerStyle);
+    mapFeature.setStyle(this.satMapMarkerStyle as StyleFunction);
     return mapFeature;
   }
   
