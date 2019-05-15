@@ -27,6 +27,7 @@ export type Satellite = {
   meanAnomaly: number;
   meanMotion: number;
   orbitNumber: number;
+  dataUpdatedAt: Date;
 };
 
 export type SatellitePosition = {

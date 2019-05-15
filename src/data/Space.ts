@@ -53,21 +53,19 @@ export function parseTleData(
     orbitNumber:
       secondStanza.length === 9
         ? parseFloat(secondStanza[8].substring(0, secondStanza[8].length - 1))
-        : parseFloat(secondStanza[7].substring(11, 16))
+        : parseFloat(secondStanza[7].substring(11, 16)),
+    dataUpdatedAt: new Date()
   };
-  localStorage.setItem(sat.name, JSON.stringify(sat));
+  localStorage.setItem(`SAT:${sat.name}`, JSON.stringify(sat));
   return sat;
 }
 
-export async function getDefaultSatellites(): Promise<Array<Satellite>> {
+export async function getDefaultSatellites(): Promise<void> {
   const rawdata = await getDefaultTleData();
-  const parsed: Satellite[] = [];
   let data: string[] = rawdata.split("\n");
   for (let i = 0; i < data.length; i += 3) {
-    const sat = parseTleData(data[i], data[i + 1], data[i + 2]);
-    parsed.push(sat);
+    parseTleData(data[i], data[i + 1], data[i + 2]);
   }
-  return parsed;
 }
 
 export function calculateSatellitePosition(

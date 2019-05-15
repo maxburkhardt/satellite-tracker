@@ -6,6 +6,7 @@ import {
 } from "../util/SharedTypes";
 
 export type Props = {
+  userLocation: LatLong;
   updateLocationCallback: (newPosition: LatLong) => void;
   updateSatDataCallback: () => void;
 };
@@ -63,27 +64,35 @@ class Controls extends React.Component<Props, LatLong> {
     this.setState({ longitude: parseFloat(target.value) });
   }
 
+  componentDidMount() {
+    this.setState({ latitude: this.props.userLocation.latitude, longitude: this.props.userLocation.longitude })
+  }
+
   render() {
     return (
       <div>
         <form>
           <strong>Your location:</strong>
-          <p>
-            Latitude:{" "}
-            <input
-              type="text"
-              value={this.state.latitude}
-              onChange={this.handleLatitudeInput}
-            />
-            Longitude:{" "}
-            <input
-              type="text"
-              value={this.state.longitude}
-              onChange={this.handleLongitudeInput}
-            />
+          <div>
+            <div>
+              Latitude:{" "}
+              <input
+                type="text"
+                value={this.state.latitude}
+                onChange={this.handleLatitudeInput}
+              />
+            </div>
+            <div>
+              Longitude:{" "}
+              <input
+                type="text"
+                value={this.state.longitude}
+                onChange={this.handleLongitudeInput}
+              />
+            </div>
             <button onClick={this.geolocateClick}>Geolocate me!</button>
-            <button onClick={this.aboveMeClick}>What's above me now?</button>
-          </p>
+            <button onClick={this.aboveMeClick}>Load latest data</button>
+          </div>
         </form>
       </div>
     );

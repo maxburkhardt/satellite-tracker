@@ -55,6 +55,7 @@ class SatMap extends React.Component<Props, State> {
 
     this.generateMarkers = this.generateMarkers.bind(this);
     this.generateSatMapLayer = this.generateSatMapLayer.bind(this);
+    this.updateMap = this.updateMap.bind(this);
   }
 
   satMapMarkerStyle(feature: OlFeature, zoomLevel: number) {
@@ -103,12 +104,7 @@ class SatMap extends React.Component<Props, State> {
     });
   }
 
-  componentDidMount() {
-    this.state.map.setTarget(this.state.mapDivId);
-  }
-
-  componentDidUpdate() {
-    // check to see if we should update ground station location
+  updateMap() {
     if (
       this.props.userLocation.latitude !==
         this.state.groundStationLocation.latitude ||
@@ -133,6 +129,16 @@ class SatMap extends React.Component<Props, State> {
     }
     this.state.map.addLayer(newSatelliteLayer);
     this.satelliteLayer = newSatelliteLayer;
+
+  }
+
+  componentDidMount() {
+    this.state.map.setTarget(this.state.mapDivId);
+    this.updateMap();
+  }
+
+  componentDidUpdate() {
+    this.updateMap();
   }
 
   render() {

@@ -95,6 +95,7 @@ class Radar extends React.Component<Props> {
 
   componentDidMount() {
     this.drawRadarStructure();
+    this.getOverhead().map(sat => this.drawSatOnRadar(sat));
   }
 
   componentDidUpdate() {
