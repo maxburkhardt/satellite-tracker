@@ -10,6 +10,7 @@
     "@types/react-dom": "16.8.4",
     "@types/react-table": "^6.8.1",
     "css-loader": "^2.1.1",
+    "moment": "^2.24.0",
     "ol": "^5.3.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -21,12 +22,11 @@
     "typescript": "3.4.5"
   },
   "scripts": {
+    "prettier": "prettier --write src/**/*.ts src/**/*.tsx",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "serverbuild": "tsc",
-    "server": "node-env-run src/server/index.ts --exec nodemon"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -44,15 +44,6 @@
     ]
   },
   "devDependencies": {
-    "@types/express": "^4.16.1",
-    "@types/request-promise": "^4.1.43",
-    "express": "^4.16.4",
-    "moment": "^2.24.0",
-    "node-cache": "^4.2.0",
-    "node-env-run": "^3.0.2",
-    "nodemon": "^1.19.0",
-    "npm-run-all": "^4.1.5",
-    "request-promise": "^4.2.4",
-    "ts-node": "^8.1.0"
+    "prettier": "1.17.1"
   }
 }
