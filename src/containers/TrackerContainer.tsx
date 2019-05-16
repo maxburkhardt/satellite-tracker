@@ -41,6 +41,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
     this.processLocalSatData = this.processLocalSatData.bind(this);
+    this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(this);
   }
 
   updateUserLocation(location: LatLong) {
@@ -67,6 +68,12 @@ class TrackerContainer extends React.Component<Props, State> {
     this.setState({ satData: calculated });
   }
 
+  periodicProcessLocalSatData() {
+    console.log("Updating sat data periodicially");
+    this.processLocalSatData();
+    setTimeout(this.periodicProcessLocalSatData, 1000 * 15);
+  }
+
   updateSatDataCallback() {
     getDefaultSatellites().then(() => this.processLocalSatData());
   }
@@ -87,6 +94,8 @@ class TrackerContainer extends React.Component<Props, State> {
     if (savedLocation) {
       this.updateUserLocation(JSON.parse(savedLocation) as LatLong)
     }
+    // schedule periodic updating of locations
+    this.periodicProcessLocalSatData();
   }
 
   render() {
