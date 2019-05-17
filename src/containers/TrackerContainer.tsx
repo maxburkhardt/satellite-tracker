@@ -69,7 +69,6 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   periodicProcessLocalSatData() {
-    console.log("Updating sat data periodicially");
     this.processLocalSatData();
     setTimeout(this.periodicProcessLocalSatData, 1000 * 15);
   }
