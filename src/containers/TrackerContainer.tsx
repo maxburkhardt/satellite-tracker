@@ -50,7 +50,7 @@ class TrackerContainer extends React.Component<Props, State> {
     // re-process local data since changing observer changes satellite position
     this.setState({ userLocation: location }, () => this.processLocalSatData());
     // save state for future usage, but don't save 0,0
-    if (location.latitude !== 0 && location.longitude !== 0) {
+    if (location.latitude !== 0 && location.latitude !== null && location.longitude !== 0 && location.longitude !== null) {
       localStorage.setItem("userLocation", JSON.stringify(location));
     }
   }

@@ -11,24 +11,34 @@ export type Props = {
   updateSatDataCallback: () => void;
 };
 
-class Controls extends React.Component<Props, LatLong> {
+export type State = {
+  latitudeInput: string,
+  longitudeInput: string
+}
+
+class Controls extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { latitude: 0, longitude: 0 };
+    this.state = { latitudeInput: "0", longitudeInput: "0" };
     this.geolocateClick = this.geolocateClick.bind(this);
     this.getGeoSuccess = this.getGeoSuccess.bind(this);
     this.getGeoError = this.getGeoError.bind(this);
     this.aboveMeClick = this.aboveMeClick.bind(this);
     this.handleLatitudeInput = this.handleLatitudeInput.bind(this);
     this.handleLongitudeInput = this.handleLongitudeInput.bind(this);
+    this.validateInput = this.validateInput.bind(this);
+    this.updateLocation = this.updateLocation.bind(this);
   }
 
   getGeoSuccess(position: GeolocationOutput) {
+    this.setState({
+      latitudeInput: position.coords.latitude.toString(),
+      longitudeInput: position.coords.longitude.toString()
+    });
     const newPosition = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude
     };
-    this.setState(newPosition);
     this.props.updateLocationCallback(newPosition);
   }
 
@@ -48,26 +58,45 @@ class Controls extends React.Component<Props, LatLong> {
     }
   }
 
+  validateInput(): LatLong | null {
+    const latNum: number = parseFloat(this.state.latitudeInput);
+    const longNum: number = parseFloat(this.state.longitudeInput);
+    if (!isNaN(latNum) && !isNaN(longNum)) {
+      return {latitude: latNum, longitude: longNum};
+    } else {
+      return null;
+    }
+  }
+
+  updateLocation(): void {
+    const validated = this.validateInput();
+    if (validated) {
+      this.props.updateLocationCallback(validated);
+      this.props.updateSatDataCallback();
+    } else {
+      // inform user of error
+    }
+  }
+
   aboveMeClick(event: React.SyntheticEvent) {
     event.preventDefault();
-    this.props.updateLocationCallback(this.state);
-    this.props.updateSatDataCallback();
+    this.updateLocation();
   }
 
   handleLatitudeInput(event: React.SyntheticEvent) {
     const target = event.target as HTMLInputElement;
-    this.setState({ latitude: parseFloat(target.value) });
+    this.setState({ latitudeInput: target.value });
   }
 
   handleLongitudeInput(event: React.SyntheticEvent) {
     const target = event.target as HTMLInputElement;
-    this.setState({ longitude: parseFloat(target.value) });
+    this.setState({ longitudeInput: target.value });
   }
 
   componentDidMount() {
     this.setState({
-      latitude: this.props.userLocation.latitude,
-      longitude: this.props.userLocation.longitude
+      latitudeInput: this.props.userLocation.latitude.toString(),
+      longitudeInput: this.props.userLocation.longitude.toString()
     });
   }
 
@@ -81,7 +110,7 @@ class Controls extends React.Component<Props, LatLong> {
               Latitude:{" "}
               <input
                 type="text"
-                value={this.state.latitude}
+                value={this.state.latitudeInput}
                 onChange={this.handleLatitudeInput}
               />
             </div>
@@ -89,7 +118,7 @@ class Controls extends React.Component<Props, LatLong> {
               Longitude:{" "}
               <input
                 type="text"
-                value={this.state.longitude}
+                value={this.state.longitudeInput}
                 onChange={this.handleLongitudeInput}
               />
             </div>
