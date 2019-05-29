@@ -25,6 +25,7 @@ export type State = {
   userLocation: LatLong;
   satData: Array<SatellitePosition>;
   satPasses: { [key: string]: Array<SatellitePass> };
+  requestedPassTableSelection: string;
 };
 
 export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
@@ -35,7 +36,8 @@ class TrackerContainer extends React.Component<Props, State> {
     this.state = {
       userLocation: { latitude: 0, longitude: 0 },
       satData: [],
-      satPasses: {}
+      satPasses: {},
+      requestedPassTableSelection: ""
     };
     this.updateUserLocation = this.updateUserLocation.bind(this);
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
@@ -44,13 +46,21 @@ class TrackerContainer extends React.Component<Props, State> {
     this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
       this
     );
+    this.requestPassTableSelectionCallback = this.requestPassTableSelectionCallback.bind(
+      this
+    );
   }
 
   updateUserLocation(location: LatLong) {
     // re-process local data since changing observer changes satellite position
     this.setState({ userLocation: location }, () => this.processLocalSatData());
     // save state for future usage, but don't save 0,0
-    if (location.latitude !== 0 && location.latitude !== null && location.longitude !== 0 && location.longitude !== null) {
+    if (
+      location.latitude !== 0 &&
+      location.latitude !== null &&
+      location.longitude !== 0 &&
+      location.longitude !== null
+    ) {
       localStorage.setItem("userLocation", JSON.stringify(location));
     }
   }
@@ -92,6 +102,10 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
+  requestPassTableSelectionCallback(satellite: string): void {
+    this.setState({ requestedPassTableSelection: satellite });
+  }
+
   componentDidMount() {
     const savedLocation = localStorage.getItem("userLocation");
     if (savedLocation) {
@@ -120,6 +134,7 @@ class TrackerContainer extends React.Component<Props, State> {
         <PassTable
           satData={this.state.satData}
           satPasses={this.state.satPasses}
+          requestedSelection={this.state.requestedPassTableSelection}
           updateSatPassesCallback={this.updateSatPassesCallback}
         />
       ),
@@ -127,6 +142,9 @@ class TrackerContainer extends React.Component<Props, State> {
         <SatMap
           userLocation={this.state.userLocation}
           satData={this.state.satData}
+          requestPassTableSelectionCallback={
+            this.requestPassTableSelectionCallback
+          }
         />
       )
     };

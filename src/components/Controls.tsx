@@ -12,9 +12,9 @@ export type Props = {
 };
 
 export type State = {
-  latitudeInput: string,
-  longitudeInput: string
-}
+  latitudeInput: string;
+  longitudeInput: string;
+};
 
 class Controls extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -62,7 +62,7 @@ class Controls extends React.Component<Props, State> {
     const latNum: number = parseFloat(this.state.latitudeInput);
     const longNum: number = parseFloat(this.state.longitudeInput);
     if (!isNaN(latNum) && !isNaN(longNum)) {
-      return {latitude: latNum, longitude: longNum};
+      return { latitude: latNum, longitude: longNum };
     } else {
       return null;
     }

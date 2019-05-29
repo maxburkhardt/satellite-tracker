@@ -7,6 +7,7 @@ import { LatLong, SatellitePosition } from "../util/SharedTypes";
 export type Props = {
   userLocation: LatLong;
   satData: Array<SatellitePosition>;
+  requestPassTableSelectionCallback: (sat: string) => void;
 };
 
 export type State = {
@@ -36,7 +37,12 @@ class SatMap extends React.Component<Props, State> {
       zoom: 5
     };
 
+    this.handleSatClick = this.handleSatClick.bind(this);
     this.generateMarker = this.generateMarker.bind(this);
+  }
+
+  handleSatClick(satName: string) {
+    this.props.requestPassTableSelectionCallback(satName);
   }
 
   generateMarker(sat: SatellitePosition): JSX.Element {
@@ -48,6 +54,7 @@ class SatMap extends React.Component<Props, State> {
         position={[sat.latitude, sat.longitude]}
         key={sat.name}
         icon={this.satIcon}
+        onClick={() => this.handleSatClick(sat.name)}
       >
         <Popup>
           <strong>{sat.name}</strong>
@@ -80,7 +87,12 @@ class SatMap extends React.Component<Props, State> {
           // url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
         />
-        <Marker position={this.latLongToLeafletCoords(this.props.userLocation)} icon={this.groundStationIcon}><Popup>Your Location</Popup></Marker>
+        <Marker
+          position={this.latLongToLeafletCoords(this.props.userLocation)}
+          icon={this.groundStationIcon}
+        >
+          <Popup>Your Location</Popup>
+        </Marker>
         {satMarkers}
       </Map>
     );
