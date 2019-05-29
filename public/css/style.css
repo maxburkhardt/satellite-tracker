@@ -27,7 +27,7 @@ footer {
   border-top: 1px solid lightgrey;
 }
 
-.map {
+.leaflet-container {
   height: 300px;
   width: 100%;
 }

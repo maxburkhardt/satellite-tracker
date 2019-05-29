@@ -5,8 +5,8 @@ import Radar from "../components/Radar";
 import PassTable from "../components/PassTable";
 import SatMap from "../components/SatMap";
 import "react-mosaic-component/react-mosaic-component.css";
-import '@blueprintjs/core/lib/css/blueprint.css';
-import '@blueprintjs/icons/lib/css/blueprint-icons.css';
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import {
   LatLong,
   SatellitePass,
@@ -27,7 +27,7 @@ export type State = {
   satPasses: { [key: string]: Array<SatellitePass> };
 };
 
-export type ViewId = 'controls' | 'radar' | 'passTable' | 'map' | 'new';
+export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
 
 class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -41,7 +41,9 @@ class TrackerContainer extends React.Component<Props, State> {
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
     this.processLocalSatData = this.processLocalSatData.bind(this);
-    this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(this);
+    this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
+      this
+    );
   }
 
   updateUserLocation(location: LatLong) {
@@ -61,7 +63,9 @@ class TrackerContainer extends React.Component<Props, State> {
         const satJson = localStorage.getItem(satKey);
         if (satJson) {
           const sat = JSON.parse(satJson) as Satellite;
-          calculated.push(calculateSatellitePosition(sat, this.state.userLocation, new Date()));
+          calculated.push(
+            calculateSatellitePosition(sat, this.state.userLocation, new Date())
+          );
         }
       }
     }
@@ -91,7 +95,7 @@ class TrackerContainer extends React.Component<Props, State> {
   componentDidMount() {
     const savedLocation = localStorage.getItem("userLocation");
     if (savedLocation) {
-      this.updateUserLocation(JSON.parse(savedLocation) as LatLong)
+      this.updateUserLocation(JSON.parse(savedLocation) as LatLong);
     }
     // schedule periodic updating of locations
     this.periodicProcessLocalSatData();
@@ -126,18 +130,22 @@ class TrackerContainer extends React.Component<Props, State> {
         />
       )
     };
-    const TITLE_MAP: { [key:string]: string } = {
-      controls: 'Controls',
-      radar: 'Radar',
-      passTable: 'Pass Table',
-      map: 'World Map',
-      new: 'New'
+    const TITLE_MAP: { [key: string]: string } = {
+      controls: "Controls",
+      radar: "Radar",
+      passTable: "Pass Table",
+      map: "World Map",
+      new: "New"
     };
     return (
       <div className="trackerWindow">
         <Mosaic
           renderTile={(id, path) => (
-            <MosaicWindow<ViewId> path={path} createNode={() => 'new'} title={TITLE_MAP[id]}>
+            <MosaicWindow<ViewId>
+              path={path}
+              createNode={() => "new"}
+              title={TITLE_MAP[id]}
+            >
               {ELEMENT_MAP[id]}
             </MosaicWindow>
           )}

@@ -65,7 +65,10 @@ class Controls extends React.Component<Props, LatLong> {
   }
 
   componentDidMount() {
-    this.setState({ latitude: this.props.userLocation.latitude, longitude: this.props.userLocation.longitude })
+    this.setState({
+      latitude: this.props.userLocation.latitude,
+      longitude: this.props.userLocation.longitude
+    });
   }
 
   render() {

@@ -30,7 +30,7 @@ class PassTable extends React.Component<Props, State> {
 
   componentDidMount() {
     const selector = this.satSelector.current;
-    if (selector && selector.value.length > 0) { 
+    if (selector && selector.value.length > 0) {
       this.setState({ selected: selector.value });
       this.props.updateSatPassesCallback(selector.value);
     }
@@ -39,7 +39,7 @@ class PassTable extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.satData === null || prevProps.satData.length === 0) {
       const selector = this.satSelector.current;
-      if (selector && selector.value.length > 0) { 
+      if (selector && selector.value.length > 0) {
         this.setState({ selected: selector.value });
         this.props.updateSatPassesCallback(selector.value);
       }
@@ -94,7 +94,11 @@ class PassTable extends React.Component<Props, State> {
     }
     return (
       <div>
-        <select value={this.state.selected} ref={this.satSelector} onChange={this.handleChange}>
+        <select
+          value={this.state.selected}
+          ref={this.satSelector}
+          onChange={this.handleChange}
+        >
           {satelliteOptions}
         </select>
         <ReactTable data={data} columns={columns} />

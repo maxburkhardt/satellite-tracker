@@ -1,21 +1,8 @@
 import React from "react";
 
-import OlMap from "ol/Map";
-import OlView from "ol/View";
-import OlFill from "ol/style/Fill";
-import OlText from "ol/style/Text";
-import OlFeature from "ol/Feature";
-import OlPoint from "ol/geom/Point";
-import OlStyle from "ol/style/Style";
-import OlStroke from "ol/style/Stroke";
-import OlCircle from "ol/style/Circle";
-import OlVectorSource from "ol/source/Vector";
-import OlVectorLayer from "ol/layer/Vector";
-import OlLayerTile from "ol/layer/Tile";
-import OlSourceOsm from "ol/source/OSM";
-import { fromLonLat } from "ol/proj";
+import L from "leaflet";
+import { Map, Marker, Popup, TileLayer } from "react-leaflet";
 import { LatLong, SatellitePosition } from "../util/SharedTypes";
-import { StyleFunction } from "openlayers";
 
 export type Props = {
   userLocation: LatLong;
@@ -23,129 +10,70 @@ export type Props = {
 };
 
 export type State = {
-  mapDivId: string;
-  map: OlMap;
-  groundStationLocation: LatLong;
+  zoom: number;
 };
 
 class SatMap extends React.Component<Props, State> {
-  private satelliteLayer?: OlVectorLayer;
+  private satIcon = new L.Icon({
+    iconUrl: require("../assets/sat_marker.svg"),
+    iconRetinaUrl: require("../assets/sat_marker.svg"),
+    iconAnchor: [15, 15],
+    iconSize: [30, 30],
+    popupAnchor: [0, -15]
+  });
+
   constructor(props: Props) {
     super(props);
-    const layerTileOptions = {
-      name: "OSM",
-      source: new OlSourceOsm({
-        // want dark mode?
-        // url: 'https://{a-c}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-        url: "https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-      })
-    };
     this.state = {
-      mapDivId: "satMapDiv",
-      map: new OlMap({
-        layers: [new OlLayerTile(layerTileOptions)],
-        view: new OlView({
-          // default view in Houston, because mission control.
-          center: fromLonLat([-95.36327, 29.76328]),
-          zoom: 4
-        })
-      }),
-      groundStationLocation: { longitude: 0, latitude: 0 }
+      zoom: 5
     };
 
-    this.generateMarkers = this.generateMarkers.bind(this);
-    this.generateSatMapLayer = this.generateSatMapLayer.bind(this);
-    this.updateMap = this.updateMap.bind(this);
+    this.generateMarker = this.generateMarker.bind(this);
   }
 
-  satMapMarkerStyle(feature: OlFeature, zoomLevel: number) {
-    return [
-      new OlStyle({
-        image: new OlCircle({
-          radius: 4,
-          fill: new OlFill({
-            color: "rgba(255,0,0,1)"
-          }),
-          stroke: new OlStroke({
-            color: "rgba(255,0,0,1)",
-            width: 1
-          })
-        }),
-        text: new OlText({
-          fill: new OlFill({ color: "#000" }),
-          stroke: new OlStroke({
-            color: "#fff",
-            width: 2
-          }),
-          offsetX: 10,
-          textAlign: "left",
-          text: feature.get("name")
-        })
-      })
-    ];
-  }
-
-  generateMarkers(sat: SatellitePosition) {
-    const mapFeature = new OlFeature({
-      geometry: new OlPoint(fromLonLat([sat.longitude, sat.latitude])),
-      name: sat.name
-    });
-    mapFeature.setStyle(this.satMapMarkerStyle as StyleFunction);
-    return mapFeature;
-  }
-
-  generateSatMapLayer() {
-    const markers = this.props.satData.map(this.generateMarkers);
-    const vectorSource = new OlVectorSource({
-      features: markers
-    });
-    return new OlVectorLayer({
-      source: vectorSource
-    });
-  }
-
-  updateMap() {
-    if (
-      this.props.userLocation.latitude !==
-        this.state.groundStationLocation.latitude ||
-      this.props.userLocation.longitude !==
-        this.state.groundStationLocation.longitude
-    ) {
-      this.state.map.getView().animate(
-        { zoom: 4 },
-        {
-          center: fromLonLat([
-            this.props.userLocation.longitude,
-            this.props.userLocation.latitude
-          ])
-        }
-      );
-      this.setState({ groundStationLocation: this.props.userLocation });
+  generateMarker(sat: SatellitePosition): JSX.Element {
+    if (!sat.latitude || !sat.longitude) {
+      return <span key={sat.name} />;
     }
-
-    const newSatelliteLayer = this.generateSatMapLayer();
-    if (this.satelliteLayer) {
-      this.state.map.removeLayer(this.satelliteLayer);
-    }
-    this.state.map.addLayer(newSatelliteLayer);
-    this.satelliteLayer = newSatelliteLayer;
-
+    return (
+      <Marker
+        position={[sat.latitude, sat.longitude]}
+        key={sat.name}
+        icon={this.satIcon}
+      >
+        <Popup>
+          <strong>{sat.name}</strong>
+          <br />
+          Longitude: {sat.longitude}
+          <br />
+          Latitude: {sat.latitude}
+          <br />
+          Distance: {sat.rangeSat}
+        </Popup>
+      </Marker>
+    );
   }
 
-  componentDidMount() {
-    this.state.map.setTarget(this.state.mapDivId);
-    this.updateMap();
-  }
-
-  componentDidUpdate() {
-    this.updateMap();
+  latLongToLeafletCoords(position: LatLong): [number, number] {
+    return [position.latitude, position.longitude];
   }
 
   render() {
+    const satMarkers: JSX.Element[] = this.props.satData.map(
+      this.generateMarker
+    );
     return (
-      <div>
-        <div id={this.state.mapDivId} className="map" />
-      </div>
+      <Map
+        center={this.latLongToLeafletCoords(this.props.userLocation)}
+        zoom={this.state.zoom}
+      >
+        <TileLayer
+          // want dark mode?
+          // url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+        />
+        {satMarkers}
+      </Map>
     );
   }
 }
