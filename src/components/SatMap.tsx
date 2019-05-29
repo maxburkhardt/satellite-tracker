@@ -22,6 +22,14 @@ class SatMap extends React.Component<Props, State> {
     popupAnchor: [0, -15]
   });
 
+  private groundStationIcon = new L.Icon({
+    iconUrl: require("../assets/ground_station.svg"),
+    iconRetinaUrl: require("../assets/ground_station.svg"),
+    iconAnchor: [15, 15],
+    iconSize: [30, 30],
+    popupAnchor: [0, -15]
+  });
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -72,6 +80,7 @@ class SatMap extends React.Component<Props, State> {
           // url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
         />
+        <Marker position={this.latLongToLeafletCoords(this.props.userLocation)} icon={this.groundStationIcon}><Popup>Your Location</Popup></Marker>
         {satMarkers}
       </Map>
     );
