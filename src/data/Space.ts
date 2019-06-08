@@ -16,6 +16,7 @@ import {
   SatellitePass,
   SatellitePosition
 } from "../util/SharedTypes";
+import { saveSatellite } from "./LocalStorage";
 
 export function getDefaultTleData(): Promise<string> {
   return fetch("/birds.txt").then(response => response.text());
@@ -56,7 +57,7 @@ export function parseTleData(
         : parseFloat(secondStanza[7].substring(11, 16)),
     dataUpdatedAt: new Date()
   };
-  localStorage.setItem(`SAT:${sat.name}`, JSON.stringify(sat));
+  saveSatellite(sat);
   return sat;
 }
 

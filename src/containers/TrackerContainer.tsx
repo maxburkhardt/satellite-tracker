@@ -7,17 +7,20 @@ import SatMap from "../components/SatMap";
 import "react-mosaic-component/react-mosaic-component.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
-import {
-  LatLong,
-  SatellitePass,
-  SatellitePosition,
-  Satellite
-} from "../util/SharedTypes";
+import { LatLong, SatellitePass, SatellitePosition } from "../util/SharedTypes";
 import {
   getDefaultSatellites,
   calculateSatellitePosition,
   getFuturePasses
 } from "../data/Space";
+import {
+  getSavedSatellites,
+  getSavedUserLocation,
+  saveUserLocation,
+  getSavedSatellite,
+  saveMosaicLayout,
+  getMosaicLayout
+} from "../data/LocalStorage";
 
 export type Props = {};
 
@@ -54,29 +57,18 @@ class TrackerContainer extends React.Component<Props, State> {
   updateUserLocation(location: LatLong) {
     // re-process local data since changing observer changes satellite position
     this.setState({ userLocation: location }, () => this.processLocalSatData());
-    // save state for future usage, but don't save 0,0
-    if (
-      location.latitude !== 0 &&
-      location.latitude !== null &&
-      location.longitude !== 0 &&
-      location.longitude !== null
-    ) {
-      localStorage.setItem("userLocation", JSON.stringify(location));
-    }
+    saveUserLocation(location);
   }
 
   processLocalSatData() {
     const calculated: Array<SatellitePosition> = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const satKey = localStorage.key(i);
-      if (satKey && satKey.startsWith("SAT:")) {
-        const satJson = localStorage.getItem(satKey);
-        if (satJson) {
-          const sat = JSON.parse(satJson) as Satellite;
-          calculated.push(
-            calculateSatellitePosition(sat, this.state.userLocation, new Date())
-          );
-        }
+    for (let sat of getSavedSatellites()) {
+      try {
+        calculated.push(
+          calculateSatellitePosition(sat, this.state.userLocation, new Date())
+        );
+      } catch {
+        console.log(`Skipping calculation for ${sat.name} due to an error.`);
       }
     }
     this.setState({ satData: calculated });
@@ -92,9 +84,8 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   updateSatPassesCallback(satellite: string) {
-    const lookup = localStorage.getItem(`SAT:${satellite}`);
-    if (lookup) {
-      const sat = JSON.parse(lookup) as Satellite;
+    const sat = getSavedSatellite(satellite);
+    if (sat) {
       const satSpecificPasses = getFuturePasses(sat, this.state.userLocation);
       const passes = { ...this.state.satPasses };
       passes[satellite] = satSpecificPasses;
@@ -107,9 +98,9 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const savedLocation = localStorage.getItem("userLocation");
+    const savedLocation = getSavedUserLocation();
     if (savedLocation) {
-      this.updateUserLocation(JSON.parse(savedLocation) as LatLong);
+      this.updateUserLocation(savedLocation);
     }
     // schedule periodic updating of locations
     this.periodicProcessLocalSatData();
@@ -148,6 +139,7 @@ class TrackerContainer extends React.Component<Props, State> {
         />
       )
     };
+
     const TITLE_MAP: { [key: string]: string } = {
       controls: "Controls",
       radar: "Radar",
@@ -155,6 +147,7 @@ class TrackerContainer extends React.Component<Props, State> {
       map: "World Map",
       new: "New"
     };
+
     return (
       <div className="trackerWindow">
         <Mosaic
