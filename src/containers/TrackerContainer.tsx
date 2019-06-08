@@ -1,5 +1,5 @@
 import React from "react";
-import { Mosaic, MosaicWindow } from "react-mosaic-component";
+import { Mosaic, MosaicWindow, MosaicNode } from "react-mosaic-component";
 import Controls from "../components/Controls";
 import Radar from "../components/Radar";
 import PassTable from "../components/PassTable";
@@ -29,6 +29,7 @@ export type State = {
   satData: Array<SatellitePosition>;
   satPasses: { [key: string]: Array<SatellitePass> };
   requestedPassTableSelection: string;
+  mosaicRootNode: MosaicNode<ViewId> | null;
 };
 
 export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
@@ -36,11 +37,29 @@ export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
 class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    let initialRootNode: MosaicNode<ViewId> | null = getMosaicLayout();
+    if (initialRootNode === null) {
+      initialRootNode = {
+        direction: "row",
+        first: {
+          direction: "column",
+          first: "controls",
+          second: "radar"
+        },
+        second: {
+          direction: "column",
+          first: "passTable",
+          second: "map"
+        },
+        splitPercentage: 30
+      };
+    }
     this.state = {
       userLocation: { latitude: 0, longitude: 0 },
       satData: [],
       satPasses: {},
-      requestedPassTableSelection: ""
+      requestedPassTableSelection: "",
+      mosaicRootNode: initialRootNode
     };
     this.updateUserLocation = this.updateUserLocation.bind(this);
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
@@ -52,6 +71,8 @@ class TrackerContainer extends React.Component<Props, State> {
     this.requestPassTableSelectionCallback = this.requestPassTableSelectionCallback.bind(
       this
     );
+    this.onMosaicChange = this.onMosaicChange.bind(this);
+    this.onMosaicRelease = this.onMosaicRelease.bind(this);
   }
 
   updateUserLocation(location: LatLong) {
@@ -96,6 +117,15 @@ class TrackerContainer extends React.Component<Props, State> {
   requestPassTableSelectionCallback(satellite: string): void {
     this.setState({ requestedPassTableSelection: satellite });
   }
+
+  private onMosaicChange = (currentNode: MosaicNode<ViewId> | null) => {
+    saveMosaicLayout(currentNode);
+    this.setState({ mosaicRootNode: currentNode });
+  };
+
+  private onMosaicRelease = (currentNode: MosaicNode<ViewId> | null) => {
+    console.log("Mosaic.onRelease():", currentNode);
+  };
 
   componentDidMount() {
     const savedLocation = getSavedUserLocation();
@@ -160,20 +190,9 @@ class TrackerContainer extends React.Component<Props, State> {
               {ELEMENT_MAP[id]}
             </MosaicWindow>
           )}
-          initialValue={{
-            direction: "row",
-            first: {
-              direction: "column",
-              first: "controls",
-              second: "radar"
-            },
-            second: {
-              direction: "column",
-              first: "passTable",
-              second: "map"
-            },
-            splitPercentage: 30
-          }}
+          value={this.state.mosaicRootNode}
+          onChange={this.onMosaicChange}
+          onRelease={this.onMosaicRelease}
         />
       </div>
     );
