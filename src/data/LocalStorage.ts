@@ -31,6 +31,10 @@ export function saveSatellite(sat: Satellite): boolean {
   return true;
 }
 
+export function deleteSavedSatellite(name: string): void {
+  localStorage.removeItem(`SAT:${name}`);
+}
+
 export function getSavedUserLocation(): LatLong | null {
   const savedLocation = localStorage.getItem("userLocation");
   if (savedLocation) {
@@ -54,7 +58,10 @@ export function saveUserLocation(newLocation: LatLong): boolean {
   }
 }
 
-export function saveMosaicLayout(condensed: boolean, node: MosaicNode<ViewId> | null): boolean {
+export function saveMosaicLayout(
+  condensed: boolean,
+  node: MosaicNode<ViewId> | null
+): boolean {
   if (node && condensed) {
     localStorage.setItem("mosaicLayoutCondensed", JSON.stringify(node));
   } else if (node && !condensed) {
@@ -64,7 +71,9 @@ export function saveMosaicLayout(condensed: boolean, node: MosaicNode<ViewId> | 
 }
 
 export function getMosaicLayout(condensed: boolean): MosaicNode<ViewId> | null {
-  const savedLayout = localStorage.getItem(condensed ? "mosaicLayoutCondensed" : "mosaicLayoutExpanded");
+  const savedLayout = localStorage.getItem(
+    condensed ? "mosaicLayoutCondensed" : "mosaicLayoutExpanded"
+  );
   if (savedLayout) {
     return JSON.parse(savedLayout) as MosaicNode<ViewId>;
   } else {

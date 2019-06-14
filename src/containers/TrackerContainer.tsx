@@ -4,6 +4,7 @@ import Controls from "../components/Controls";
 import Radar from "../components/Radar";
 import PassTable from "../components/PassTable";
 import SatMap from "../components/SatMap";
+import SatSelector from "../components/SatSelector";
 import "react-mosaic-component/react-mosaic-component.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
@@ -19,7 +20,8 @@ import {
   saveUserLocation,
   getSavedSatellite,
   saveMosaicLayout,
-  getMosaicLayout
+  getMosaicLayout,
+  deleteSavedSatellite
 } from "../data/LocalStorage";
 
 export type Props = {};
@@ -33,7 +35,7 @@ export type State = {
   condensedView: boolean;
 };
 
-export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
+export type ViewId = "controls" | "radar" | "passTable" | "map" | "selector";
 
 class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -43,12 +45,16 @@ class TrackerContainer extends React.Component<Props, State> {
       satData: [],
       satPasses: {},
       requestedPassTableSelection: "",
-      mosaicRootNode: window.innerWidth <= 850 ? this.getCondensedMosaicLayout() : this.getExpandedMosaicLayout(),
+      mosaicRootNode:
+        window.innerWidth <= 850
+          ? this.getCondensedMosaicLayout()
+          : this.getExpandedMosaicLayout(),
       condensedView: window.innerWidth <= 850
     };
     this.updateUserLocation = this.updateUserLocation.bind(this);
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
+    this.deleteSatCallback = this.deleteSatCallback.bind(this);
     this.processLocalSatData = this.processLocalSatData.bind(this);
     this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
       this
@@ -74,7 +80,11 @@ class TrackerContainer extends React.Component<Props, State> {
         direction: "row",
         first: {
           direction: "column",
-          first: "controls",
+          first: {
+            direction: "column",
+            first: "controls",
+            second: "selector"
+          },
           second: "radar"
         },
         second: {
@@ -93,7 +103,7 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   condenseLayoutVertical(node: MosaicNode<ViewId>): MosaicNode<ViewId> {
-    if (typeof(node) !== "object") {
+    if (typeof node !== "object") {
       // This is just a ViewId
       return node;
     }
@@ -102,7 +112,7 @@ class TrackerContainer extends React.Component<Props, State> {
       direction: "column",
       first: this.condenseLayoutVertical(node.first),
       second: this.condenseLayoutVertical(node.second)
-    }
+    };
   }
 
   processLocalSatData() {
@@ -138,6 +148,19 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
+  updateSatEnabledCallback(name: string): void {
+    // TODO
+  }
+
+  addNewTleCallback(name: string, line1: string, line2: string): void {
+    // TODO
+  }
+
+  deleteSatCallback(name: string): void {
+    deleteSavedSatellite(name);
+    this.processLocalSatData();
+  }
+
   requestPassTableSelectionCallback(satellite: string): void {
     this.setState({ requestedPassTableSelection: satellite });
   }
@@ -153,9 +176,15 @@ class TrackerContainer extends React.Component<Props, State> {
 
   updateWindowDimensions() {
     if (window.innerWidth <= 850 && this.state.condensedView === false) {
-      this.setState({mosaicRootNode: this.getCondensedMosaicLayout(), condensedView: true});
+      this.setState({
+        mosaicRootNode: this.getCondensedMosaicLayout(),
+        condensedView: true
+      });
     } else if (window.innerWidth > 850 && this.state.condensedView === true) {
-      this.setState({mosaicRootNode: this.getExpandedMosaicLayout(), condensedView: false});
+      this.setState({
+        mosaicRootNode: this.getExpandedMosaicLayout(),
+        condensedView: false
+      });
     }
   }
 
@@ -205,6 +234,14 @@ class TrackerContainer extends React.Component<Props, State> {
             this.requestPassTableSelectionCallback
           }
         />
+      ),
+      selector: (
+        <SatSelector
+          updateSatEnabledCallback={this.updateSatEnabledCallback}
+          addNewTleCallback={this.addNewTleCallback}
+          deleteSatCallback={this.deleteSatCallback}
+          satData={this.state.satData}
+        />
       )
     };
 
@@ -213,17 +250,14 @@ class TrackerContainer extends React.Component<Props, State> {
       radar: "Radar",
       passTable: "Pass Table",
       map: "World Map",
-      new: "New"
+      selector: "Satellite Selector"
     };
 
     return (
       <div className="trackerWindow">
         <Mosaic
           renderTile={(id, path) => (
-            <MosaicWindow<ViewId>
-              path={path}
-              title={TITLE_MAP[id]}
-            >
+            <MosaicWindow<ViewId> path={path} title={TITLE_MAP[id]}>
               {ELEMENT_MAP[id]}
             </MosaicWindow>
           )}
