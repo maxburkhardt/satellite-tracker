@@ -30,6 +30,7 @@ export type State = {
   satPasses: { [key: string]: Array<SatellitePass> };
   requestedPassTableSelection: string;
   mosaicRootNode: MosaicNode<ViewId> | null;
+  condensedView: boolean;
 };
 
 export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
@@ -37,7 +38,37 @@ export type ViewId = "controls" | "radar" | "passTable" | "map" | "new";
 class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    let initialRootNode: MosaicNode<ViewId> | null = getMosaicLayout();
+    this.state = {
+      userLocation: { latitude: 0, longitude: 0 },
+      satData: [],
+      satPasses: {},
+      requestedPassTableSelection: "",
+      mosaicRootNode: window.innerWidth <= 850 ? this.getCondensedMosaicLayout() : this.getExpandedMosaicLayout(),
+      condensedView: window.innerWidth <= 850
+    };
+    this.updateUserLocation = this.updateUserLocation.bind(this);
+    this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
+    this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
+    this.processLocalSatData = this.processLocalSatData.bind(this);
+    this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
+      this
+    );
+    this.requestPassTableSelectionCallback = this.requestPassTableSelectionCallback.bind(
+      this
+    );
+    this.onMosaicChange = this.onMosaicChange.bind(this);
+    this.onMosaicRelease = this.onMosaicRelease.bind(this);
+    this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
+  }
+
+  updateUserLocation(location: LatLong) {
+    // re-process local data since changing observer changes satellite position
+    this.setState({ userLocation: location }, () => this.processLocalSatData());
+    saveUserLocation(location);
+  }
+
+  getExpandedMosaicLayout(): MosaicNode<ViewId> {
+    let initialRootNode: MosaicNode<ViewId> | null = getMosaicLayout(false);
     if (initialRootNode === null) {
       initialRootNode = {
         direction: "row",
@@ -54,31 +85,24 @@ class TrackerContainer extends React.Component<Props, State> {
         splitPercentage: 30
       };
     }
-    this.state = {
-      userLocation: { latitude: 0, longitude: 0 },
-      satData: [],
-      satPasses: {},
-      requestedPassTableSelection: "",
-      mosaicRootNode: initialRootNode
-    };
-    this.updateUserLocation = this.updateUserLocation.bind(this);
-    this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
-    this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
-    this.processLocalSatData = this.processLocalSatData.bind(this);
-    this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
-      this
-    );
-    this.requestPassTableSelectionCallback = this.requestPassTableSelectionCallback.bind(
-      this
-    );
-    this.onMosaicChange = this.onMosaicChange.bind(this);
-    this.onMosaicRelease = this.onMosaicRelease.bind(this);
+    return initialRootNode;
   }
 
-  updateUserLocation(location: LatLong) {
-    // re-process local data since changing observer changes satellite position
-    this.setState({ userLocation: location }, () => this.processLocalSatData());
-    saveUserLocation(location);
+  getCondensedMosaicLayout(): MosaicNode<ViewId> {
+    return this.condenseLayoutVertical(this.getExpandedMosaicLayout());
+  }
+
+  condenseLayoutVertical(node: MosaicNode<ViewId>): MosaicNode<ViewId> {
+    if (typeof(node) !== "object") {
+      // This is just a ViewId
+      return node;
+    }
+    // We should recurse
+    return {
+      direction: "column",
+      first: this.condenseLayoutVertical(node.first),
+      second: this.condenseLayoutVertical(node.second)
+    }
   }
 
   processLocalSatData() {
@@ -119,13 +143,21 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   private onMosaicChange = (currentNode: MosaicNode<ViewId> | null) => {
-    saveMosaicLayout(currentNode);
+    saveMosaicLayout(this.state.condensedView, currentNode);
     this.setState({ mosaicRootNode: currentNode });
   };
 
   private onMosaicRelease = (currentNode: MosaicNode<ViewId> | null) => {
-    console.log("Mosaic.onRelease():", currentNode);
+    // do nothing
   };
+
+  updateWindowDimensions() {
+    if (window.innerWidth <= 850 && this.state.condensedView === false) {
+      this.setState({mosaicRootNode: this.getCondensedMosaicLayout(), condensedView: true});
+    } else if (window.innerWidth > 850 && this.state.condensedView === true) {
+      this.setState({mosaicRootNode: this.getExpandedMosaicLayout(), condensedView: false});
+    }
+  }
 
   componentDidMount() {
     const savedLocation = getSavedUserLocation();
@@ -134,6 +166,12 @@ class TrackerContainer extends React.Component<Props, State> {
     }
     // schedule periodic updating of locations
     this.periodicProcessLocalSatData();
+    // register event handler to deal with responsivity
+    window.addEventListener("resize", this.updateWindowDimensions);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateWindowDimensions);
   }
 
   render() {
@@ -184,7 +222,6 @@ class TrackerContainer extends React.Component<Props, State> {
           renderTile={(id, path) => (
             <MosaicWindow<ViewId>
               path={path}
-              createNode={() => "new"}
               title={TITLE_MAP[id]}
             >
               {ELEMENT_MAP[id]}

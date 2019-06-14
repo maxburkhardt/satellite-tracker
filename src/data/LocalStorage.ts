@@ -54,15 +54,17 @@ export function saveUserLocation(newLocation: LatLong): boolean {
   }
 }
 
-export function saveMosaicLayout(node: MosaicNode<ViewId> | null): boolean {
-  if (node) {
-    localStorage.setItem("mosaicLayout", JSON.stringify(node));
+export function saveMosaicLayout(condensed: boolean, node: MosaicNode<ViewId> | null): boolean {
+  if (node && condensed) {
+    localStorage.setItem("mosaicLayoutCondensed", JSON.stringify(node));
+  } else if (node && !condensed) {
+    localStorage.setItem("mosaicLayoutExpanded", JSON.stringify(node));
   }
   return true;
 }
 
-export function getMosaicLayout(): MosaicNode<ViewId> | null {
-  const savedLayout = localStorage.getItem("mosaicLayout");
+export function getMosaicLayout(condensed: boolean): MosaicNode<ViewId> | null {
+  const savedLayout = localStorage.getItem(condensed ? "mosaicLayoutCondensed" : "mosaicLayoutExpanded");
   if (savedLayout) {
     return JSON.parse(savedLayout) as MosaicNode<ViewId>;
   } else {
