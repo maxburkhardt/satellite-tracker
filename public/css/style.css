@@ -59,3 +59,15 @@ canvas#radarUI {
 canvas#satellitesOnRadar {
   z-index: 1;
 }
+
+.bp3-form-group {
+  padding: 5px;
+}
+
+.bp3-form-group .bp3-button {
+  margin: 5px;
+}
+
+.bp3-form-group .bp3-input-group {
+  margin: 5px;
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import { Button, FormGroup, InputGroup } from "@blueprintjs/core";
 import {
   LatLong,
   GeolocationOutput,
@@ -103,29 +104,22 @@ class Controls extends React.Component<Props, State> {
   render() {
     return (
       <div>
-        <form>
-          <strong>Your location:</strong>
-          <div>
-            <div>
-              Latitude:{" "}
-              <input
-                type="text"
-                value={this.state.latitudeInput}
-                onChange={this.handleLatitudeInput}
-              />
-            </div>
-            <div>
-              Longitude:{" "}
-              <input
-                type="text"
-                value={this.state.longitudeInput}
-                onChange={this.handleLongitudeInput}
-              />
-            </div>
-            <button onClick={this.geolocateClick}>Geolocate me!</button>
-            <button onClick={this.aboveMeClick}>Load latest data</button>
-          </div>
-        </form>
+        <FormGroup label="Ground station location">
+          <InputGroup
+            id="latitudeInput"
+            placeholder="Latitude"
+            value={this.state.latitudeInput}
+            onChange={this.handleLatitudeInput}
+          />
+          <InputGroup
+            id="longitudeInput"
+            placeholder="Longitude"
+            value={this.state.longitudeInput}
+            onChange={this.handleLongitudeInput}
+          />
+          <Button onClick={this.geolocateClick}>Geolocate me!</Button>
+          <Button onClick={this.aboveMeClick}>Load latest data</Button>
+        </FormGroup>
       </div>
     );
   }
