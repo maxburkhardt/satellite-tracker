@@ -1,6 +1,6 @@
 import React from "react";
 import ReactTable, { RowInfo } from "react-table";
-import { Button } from "@blueprintjs/core";
+import { Button, Switch } from "@blueprintjs/core";
 import "react-table/react-table.css";
 import { Satellite } from "../util/SharedTypes";
 
@@ -20,7 +20,14 @@ class SatSelector extends React.Component<Props> {
       },
       {
         Header: "Toggle Visibility",
-        Cell: () => <div>Visible</div>
+        Cell: (row: RowInfo) => (
+          <Switch
+            checked={row.original.enabled}
+            onChange={() =>
+              this.props.updateSatEnabledCallback(row.original.name)
+            }
+          />
+        )
       },
       {
         Header: "Actions",
@@ -35,7 +42,7 @@ class SatSelector extends React.Component<Props> {
     ];
     return (
       <div className="scroll-container">
-        <ReactTable data={this.props.satData} columns={columns} />
+        <ReactTable data={this.props.satData} columns={columns} pageSize={3} />
       </div>
     );
   }

@@ -55,7 +55,8 @@ export function parseTleData(
       secondStanza.length === 9
         ? parseFloat(secondStanza[8].substring(0, secondStanza[8].length - 1))
         : parseFloat(secondStanza[7].substring(11, 16)),
-    dataUpdatedAt: new Date()
+    dataUpdatedAt: new Date(),
+    enabled: true
   };
   saveSatellite(sat);
   return sat;

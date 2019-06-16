@@ -116,7 +116,7 @@ class PassTable extends React.Component<Props, State> {
         >
           {satelliteOptions}
         </select>
-        <ReactTable data={data} columns={columns} />
+        <ReactTable data={data} columns={columns} pageSize={10} />
       </div>
     );
   }

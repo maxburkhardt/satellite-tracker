@@ -26,7 +26,8 @@ import {
   getSavedSatellite,
   saveMosaicLayout,
   getMosaicLayout,
-  deleteSavedSatellite
+  deleteSavedSatellite,
+  saveSatellite
 } from "../data/LocalStorage";
 
 export type Props = {};
@@ -61,6 +62,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.updateUserLocation = this.updateUserLocation.bind(this);
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
+    this.updateSatEnabledCallback = this.updateSatEnabledCallback.bind(this);
     this.deleteSatCallback = this.deleteSatCallback.bind(this);
     this.processLocalSatData = this.processLocalSatData.bind(this);
     this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
@@ -127,9 +129,15 @@ class TrackerContainer extends React.Component<Props, State> {
     this.setState({ satProperties: getSavedSatellites() }, () => {
       for (let sat of getSavedSatellites()) {
         try {
-          calculated.push(
-            calculateSatellitePosition(sat, this.state.userLocation, new Date())
-          );
+          if (sat.enabled) {
+            calculated.push(
+              calculateSatellitePosition(
+                sat,
+                this.state.userLocation,
+                new Date()
+              )
+            );
+          }
         } catch {
           console.log(`Skipping calculation for ${sat.name} due to an error.`);
         }
@@ -158,7 +166,12 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   updateSatEnabledCallback(name: string): void {
-    // TODO
+    const record = getSavedSatellite(name);
+    if (record) {
+      record.enabled = !record.enabled;
+      saveSatellite(record);
+      this.processLocalSatData();
+    }
   }
 
   addNewTleCallback(name: string, line1: string, line2: string): void {
