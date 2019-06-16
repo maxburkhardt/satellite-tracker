@@ -103,7 +103,7 @@ class Controls extends React.Component<Props, State> {
 
   render() {
     return (
-      <div>
+      <div className="scroll-container">
         <FormGroup label="Ground station location">
           <InputGroup
             id="latitudeInput"

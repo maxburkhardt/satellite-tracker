@@ -38,8 +38,11 @@ class PassTable extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.satData === null || prevProps.satData.length === 0) {
-      // If we are just loading and previously had no data, update the table to match what just got autoselected
+    if (
+      prevProps.satData === null ||
+      prevProps.satData.length !== this.props.satData.length
+    ) {
+      // If satData has been changed and thus autoselect may have changed, update the table to match what is currently selected
       const selector = this.satSelector.current;
       if (selector && selector.value.length > 0) {
         this.setState({ selected: selector.value });
@@ -105,7 +108,7 @@ class PassTable extends React.Component<Props, State> {
       data = [];
     }
     return (
-      <div>
+      <div className="scroll-container">
         <select
           value={this.state.selected}
           ref={this.satSelector}

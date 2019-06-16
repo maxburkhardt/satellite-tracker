@@ -2,20 +2,16 @@ import React from "react";
 import ReactTable, { RowInfo } from "react-table";
 import { Button } from "@blueprintjs/core";
 import "react-table/react-table.css";
-import { SatellitePosition } from "../util/SharedTypes";
+import { Satellite } from "../util/SharedTypes";
 
 export type Props = {
   updateSatEnabledCallback: (satName: string) => void;
   deleteSatCallback: (satName: string) => void;
   addNewTleCallback: (name: string, line1: string, line2: string) => void;
-  satData: Array<SatellitePosition>;
+  satData: Array<Satellite>;
 };
 
 class SatSelector extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   render() {
     const columns = [
       {
@@ -37,7 +33,11 @@ class SatSelector extends React.Component<Props> {
         )
       }
     ];
-    return <ReactTable data={this.props.satData} columns={columns} />;
+    return (
+      <div className="scroll-container">
+        <ReactTable data={this.props.satData} columns={columns} />
+      </div>
+    );
   }
 }
 

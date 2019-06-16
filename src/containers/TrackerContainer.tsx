@@ -8,7 +8,12 @@ import SatSelector from "../components/SatSelector";
 import "react-mosaic-component/react-mosaic-component.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
-import { LatLong, SatellitePass, SatellitePosition } from "../util/SharedTypes";
+import {
+  LatLong,
+  SatellitePass,
+  SatellitePosition,
+  Satellite
+} from "../util/SharedTypes";
 import {
   getDefaultSatellites,
   calculateSatellitePosition,
@@ -28,7 +33,8 @@ export type Props = {};
 
 export type State = {
   userLocation: LatLong;
-  satData: Array<SatellitePosition>;
+  satPositions: Array<SatellitePosition>;
+  satProperties: Array<Satellite>;
   satPasses: { [key: string]: Array<SatellitePass> };
   requestedPassTableSelection: string;
   mosaicRootNode: MosaicNode<ViewId> | null;
@@ -42,7 +48,8 @@ class TrackerContainer extends React.Component<Props, State> {
     super(props);
     this.state = {
       userLocation: { latitude: 0, longitude: 0 },
-      satData: [],
+      satPositions: [],
+      satProperties: [],
       satPasses: {},
       requestedPassTableSelection: "",
       mosaicRootNode:
@@ -117,16 +124,18 @@ class TrackerContainer extends React.Component<Props, State> {
 
   processLocalSatData() {
     const calculated: Array<SatellitePosition> = [];
-    for (let sat of getSavedSatellites()) {
-      try {
-        calculated.push(
-          calculateSatellitePosition(sat, this.state.userLocation, new Date())
-        );
-      } catch {
-        console.log(`Skipping calculation for ${sat.name} due to an error.`);
+    this.setState({ satProperties: getSavedSatellites() }, () => {
+      for (let sat of getSavedSatellites()) {
+        try {
+          calculated.push(
+            calculateSatellitePosition(sat, this.state.userLocation, new Date())
+          );
+        } catch {
+          console.log(`Skipping calculation for ${sat.name} due to an error.`);
+        }
       }
-    }
-    this.setState({ satData: calculated });
+      this.setState({ satPositions: calculated });
+    });
   }
 
   periodicProcessLocalSatData() {
@@ -215,12 +224,12 @@ class TrackerContainer extends React.Component<Props, State> {
       radar: (
         <Radar
           userLocation={this.state.userLocation}
-          satData={this.state.satData}
+          satData={this.state.satPositions}
         />
       ),
       passTable: (
         <PassTable
-          satData={this.state.satData}
+          satData={this.state.satPositions}
           satPasses={this.state.satPasses}
           requestedSelection={this.state.requestedPassTableSelection}
           updateSatPassesCallback={this.updateSatPassesCallback}
@@ -229,7 +238,7 @@ class TrackerContainer extends React.Component<Props, State> {
       map: (
         <SatMap
           userLocation={this.state.userLocation}
-          satData={this.state.satData}
+          satData={this.state.satPositions}
           requestPassTableSelectionCallback={
             this.requestPassTableSelectionCallback
           }
@@ -240,7 +249,7 @@ class TrackerContainer extends React.Component<Props, State> {
           updateSatEnabledCallback={this.updateSatEnabledCallback}
           addNewTleCallback={this.addNewTleCallback}
           deleteSatCallback={this.deleteSatCallback}
-          satData={this.state.satData}
+          satData={this.state.satProperties}
         />
       )
     };
