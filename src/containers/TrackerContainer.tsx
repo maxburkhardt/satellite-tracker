@@ -63,6 +63,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
     this.updateSatEnabledCallback = this.updateSatEnabledCallback.bind(this);
+    this.bulkSetEnabledCallback = this.bulkSetEnabledCallback.bind(this);
     this.deleteSatCallback = this.deleteSatCallback.bind(this);
     this.processLocalSatData = this.processLocalSatData.bind(this);
     this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
@@ -174,6 +175,14 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
+  bulkSetEnabledCallback(newState: boolean): void {
+    for (const sat of this.state.satProperties) {
+      sat.enabled = newState;
+      saveSatellite(sat);
+    }
+    this.processLocalSatData();
+  }
+
   addNewTleCallback(name: string, line1: string, line2: string): void {
     // TODO
   }
@@ -260,6 +269,7 @@ class TrackerContainer extends React.Component<Props, State> {
       selector: (
         <SatSelector
           updateSatEnabledCallback={this.updateSatEnabledCallback}
+          bulkSetEnabledCallback={this.bulkSetEnabledCallback}
           addNewTleCallback={this.addNewTleCallback}
           deleteSatCallback={this.deleteSatCallback}
           satData={this.state.satProperties}
