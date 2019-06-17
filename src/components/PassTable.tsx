@@ -1,6 +1,7 @@
 import React from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
+import ReactResizeDetector from "react-resize-detector";
 import { SatellitePosition, SatellitePass } from "../util/SharedTypes";
 
 export type Props = {
@@ -12,16 +13,23 @@ export type Props = {
 
 export type State = {
   selected?: string;
+  numRows: number;
 };
 
 class PassTable extends React.Component<Props, State> {
   private satSelector: React.RefObject<HTMLSelectElement>;
   constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {numRows: 20};
     this.handleChange = this.handleChange.bind(this);
     this.satSelector = React.createRef();
+    this.onResize = this.onResize.bind(this);
   }
+
+  onResize(width: number, height: number) {
+    this.setState({numRows: Math.floor((height - 115) / 33)})
+  }
+
 
   handleChange(event: React.SyntheticEvent) {
     const target = event.target as HTMLSelectElement;
@@ -109,6 +117,7 @@ class PassTable extends React.Component<Props, State> {
     }
     return (
       <div className="scroll-container">
+        <ReactResizeDetector handleHeight onResize={this.onResize} />
         <select
           value={this.state.selected}
           ref={this.satSelector}
@@ -116,7 +125,7 @@ class PassTable extends React.Component<Props, State> {
         >
           {satelliteOptions}
         </select>
-        <ReactTable data={data} columns={columns} pageSize={10} />
+        <ReactTable data={data} columns={columns} pageSize={this.state.numRows} />
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import React from "react";
 import ReactTable, { RowInfo, Filter } from "react-table";
+import ReactResizeDetector from "react-resize-detector";
 import { Button, Switch } from "@blueprintjs/core";
 import "react-table/react-table.css";
 import { Satellite } from "../util/SharedTypes";
@@ -12,7 +13,24 @@ export type Props = {
   satData: Array<Satellite>;
 };
 
-class SatSelector extends React.Component<Props> {
+export type State = {
+  numRows: number;
+}
+
+class SatSelector extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      numRows: 5
+    }
+
+    this.onResize = this.onResize.bind(this);
+  }
+
+  onResize(width: number, height: number) {
+    this.setState({numRows: Math.floor((height - 157) / 44)})
+  }
+
   render() {
     const columns = [
       {
@@ -63,10 +81,11 @@ class SatSelector extends React.Component<Props> {
     ];
     return (
       <div className="scroll-container">
+        <ReactResizeDetector handleHeight onResize={this.onResize} />
         <ReactTable
           data={this.props.satData}
           columns={columns}
-          pageSize={3}
+          pageSize={this.state.numRows}
           filterable
         />
       </div>

@@ -89,20 +89,21 @@ class TrackerContainer extends React.Component<Props, State> {
       initialRootNode = {
         direction: "row",
         first: {
-          direction: "column",
+          direction: "row",
           first: {
             direction: "column",
             first: "controls",
-            second: "selector"
+            second: "radar"
           },
-          second: "radar"
+          second: {
+            direction: "column",
+            first: "passTable",
+            second: "map"
+          },
+          splitPercentage: 30
         },
-        second: {
-          direction: "column",
-          first: "passTable",
-          second: "map"
-        },
-        splitPercentage: 30
+        second: "selector",
+        splitPercentage: 80
       };
     }
     return initialRootNode;

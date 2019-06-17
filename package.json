@@ -12,6 +12,7 @@
     "react-dom": "^16.8.6",
     "react-leaflet": "^2.3.0",
     "react-mosaic-component": "^2.1.0",
+    "react-resize-detector": "^4.2.0",
     "react-scripts": "3.0.1",
     "react-table": "^6.9.2",
     "satellite.js": "^3.0.1",
@@ -46,6 +47,7 @@
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
     "@types/react-leaflet": "^2.2.1",
+    "@types/react-resize-detector": "^4.0.1",
     "@types/react-table": "^6.8.3",
     "prettier": "1.17.1"
   }
