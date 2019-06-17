@@ -5,12 +5,6 @@
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
     "@blueprintjs/icons": "^3.8.0",
-    "@types/jest": "24.0.13",
-    "@types/node": "12.0.1",
-    "@types/react": "16.8.17",
-    "@types/react-dom": "16.8.4",
-    "@types/react-leaflet": "^2.2.1",
-    "@types/react-table": "^6.8.1",
     "css-loader": "^2.1.1",
     "leaflet": "^1.5.1",
     "moment": "^2.24.0",
@@ -47,6 +41,12 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "@types/node": "^12.0.1",
+    "@types/react": "^16.8.17",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-leaflet": "^2.2.1",
+    "@types/react-table": "^6.8.3",
     "prettier": "1.17.1"
   }
 }
