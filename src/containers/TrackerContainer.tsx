@@ -17,7 +17,8 @@ import {
 import {
   getDefaultSatellites,
   calculateSatellitePosition,
-  getFuturePasses
+  getFuturePasses,
+  parseTleData
 } from "../data/Space";
 import {
   getSavedSatellites,
@@ -59,6 +60,7 @@ class TrackerContainer extends React.Component<Props, State> {
           : this.getExpandedMosaicLayout(),
       condensedView: window.innerWidth <= 850
     };
+    this.addNewTleCallback = this.addNewTleCallback.bind(this);
     this.updateUserLocation = this.updateUserLocation.bind(this);
     this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
@@ -185,7 +187,8 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   addNewTleCallback(name: string, line1: string, line2: string): void {
-    // TODO
+    parseTleData(name, line1, line2);
+    this.processLocalSatData();
   }
 
   deleteSatCallback(name: string): void {
