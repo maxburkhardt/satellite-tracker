@@ -53,7 +53,7 @@ class SatSelector extends React.Component<Props, State> {
         Header: "Name",
         accessor: "name",
         filterMethod: (filter: Filter, row: { [key: string]: string }) =>
-          row[filter.id].includes(filter.value)
+          row[filter.id].toLowerCase().includes(filter.value.toLowerCase())
       },
       {
         Header: "Toggle Visibility",
