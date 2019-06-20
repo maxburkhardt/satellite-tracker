@@ -229,7 +229,7 @@ class TrackerContainer extends React.Component<Props, State> {
     // register event handler to deal with responsivity
     window.addEventListener("resize", this.updateWindowDimensions);
     // Get satellite data if it's not locally cached
-    if (getSavedSatellites().length === 0) { 
+    if (getSavedSatellites().length === 0) {
       getDefaultSatellites().then(() => this.processLocalSatData());
     }
   }

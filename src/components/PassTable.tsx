@@ -20,15 +20,14 @@ export type State = {
 class PassTable extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = {numRows: 20, selected: "No satellites available."};
+    this.state = { numRows: 20, selected: "No satellites available." };
     this.handleChange = this.handleChange.bind(this);
     this.onResize = this.onResize.bind(this);
   }
 
   onResize(width: number, height: number) {
-    this.setState({numRows: Math.floor((height - 115) / 33)})
+    this.setState({ numRows: Math.floor((height - 115) / 33) });
   }
-
 
   handleChange(event: React.SyntheticEvent) {
     const target = event.target as HTMLSelectElement;
@@ -39,7 +38,9 @@ class PassTable extends React.Component<Props, State> {
   componentDidMount() {
     if (this.props.satData.length > 0) {
       const firstSatName = this.props.satData[0].name;
-      this.setState({ selected: firstSatName }, () => this.props.updateSatPassesCallback(firstSatName));
+      this.setState({ selected: firstSatName }, () =>
+        this.props.updateSatPassesCallback(firstSatName)
+      );
     }
   }
 
@@ -51,7 +52,9 @@ class PassTable extends React.Component<Props, State> {
       // If satData has been changed and thus autoselect may have changed, update the table to match what is currently selected
       if (this.props.satData.length > 0) {
         const firstSatName = this.props.satData[0].name;
-        this.setState({ selected: firstSatName }, () => this.props.updateSatPassesCallback(firstSatName));
+        this.setState({ selected: firstSatName }, () =>
+          this.props.updateSatPassesCallback(firstSatName)
+        );
       }
     }
 
@@ -116,14 +119,15 @@ class PassTable extends React.Component<Props, State> {
       <div className="scroll-container">
         <ReactResizeDetector handleHeight onResize={this.onResize} />
         <FormGroup>
-          <HTMLSelect
-            value={this.state.selected}
-            onChange={this.handleChange}
-          >
+          <HTMLSelect value={this.state.selected} onChange={this.handleChange}>
             {satelliteOptions}
           </HTMLSelect>
         </FormGroup>
-        <ReactTable data={data} columns={columns} pageSize={this.state.numRows} />
+        <ReactTable
+          data={data}
+          columns={columns}
+          pageSize={this.state.numRows}
+        />
       </div>
     );
   }
