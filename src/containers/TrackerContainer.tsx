@@ -63,7 +63,6 @@ class TrackerContainer extends React.Component<Props, State> {
     };
     this.addNewTleCallback = this.addNewTleCallback.bind(this);
     this.updateUserLocation = this.updateUserLocation.bind(this);
-    this.updateSatDataCallback = this.updateSatDataCallback.bind(this);
     this.updateSatPassesCallback = this.updateSatPassesCallback.bind(this);
     this.updateSatEnabledCallback = this.updateSatEnabledCallback.bind(this);
     this.bulkSetEnabledCallback = this.bulkSetEnabledCallback.bind(this);
@@ -156,10 +155,6 @@ class TrackerContainer extends React.Component<Props, State> {
     setTimeout(this.periodicProcessLocalSatData, 1000 * 15);
   }
 
-  updateSatDataCallback() {
-    getDefaultSatellites().then(() => this.processLocalSatData());
-  }
-
   updateSatPassesCallback(satellite: string) {
     const sat = getSavedSatellite(satellite);
     if (sat) {
@@ -233,6 +228,10 @@ class TrackerContainer extends React.Component<Props, State> {
     this.periodicProcessLocalSatData();
     // register event handler to deal with responsivity
     window.addEventListener("resize", this.updateWindowDimensions);
+    // Get satellite data if it's not locally cached
+    if (getSavedSatellites().length === 0) { 
+      getDefaultSatellites().then(() => this.processLocalSatData());
+    }
   }
 
   componentWillUnmount() {
@@ -245,7 +244,6 @@ class TrackerContainer extends React.Component<Props, State> {
         <Controls
           userLocation={this.state.userLocation}
           updateLocationCallback={this.updateUserLocation}
-          updateSatDataCallback={this.updateSatDataCallback}
         />
       ),
       radar: (

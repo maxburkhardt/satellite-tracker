@@ -9,7 +9,6 @@ import {
 export type Props = {
   userLocation: LatLong;
   updateLocationCallback: (newPosition: LatLong) => void;
-  updateSatDataCallback: () => void;
 };
 
 export type State = {
@@ -20,11 +19,10 @@ export type State = {
 class Controls extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { latitudeInput: "0", longitudeInput: "0" };
+    this.state = { latitudeInput: "29.559406", longitudeInput: "-95.089692" };
     this.geolocateClick = this.geolocateClick.bind(this);
     this.getGeoSuccess = this.getGeoSuccess.bind(this);
     this.getGeoError = this.getGeoError.bind(this);
-    this.aboveMeClick = this.aboveMeClick.bind(this);
     this.handleLatitudeInput = this.handleLatitudeInput.bind(this);
     this.handleLongitudeInput = this.handleLongitudeInput.bind(this);
     this.validateInput = this.validateInput.bind(this);
@@ -73,15 +71,9 @@ class Controls extends React.Component<Props, State> {
     const validated = this.validateInput();
     if (validated) {
       this.props.updateLocationCallback(validated);
-      this.props.updateSatDataCallback();
     } else {
       // inform user of error
     }
-  }
-
-  aboveMeClick(event: React.SyntheticEvent) {
-    event.preventDefault();
-    this.updateLocation();
   }
 
   handleLatitudeInput(event: React.SyntheticEvent) {
@@ -117,8 +109,8 @@ class Controls extends React.Component<Props, State> {
             value={this.state.longitudeInput}
             onChange={this.handleLongitudeInput}
           />
+          <Button onClick={this.updateLocation}>Set Location</Button>
           <Button onClick={this.geolocateClick}>Geolocate me!</Button>
-          <Button onClick={this.aboveMeClick}>Load latest data</Button>
         </FormGroup>
       </div>
     );
