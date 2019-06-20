@@ -3,6 +3,7 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import ReactResizeDetector from "react-resize-detector";
 import { SatellitePosition, SatellitePass } from "../util/SharedTypes";
+import { HTMLSelect, FormGroup } from "@blueprintjs/core";
 
 export type Props = {
   satData: Array<SatellitePosition>;
@@ -12,17 +13,15 @@ export type Props = {
 };
 
 export type State = {
-  selected?: string;
+  selected: string;
   numRows: number;
 };
 
 class PassTable extends React.Component<Props, State> {
-  private satSelector: React.RefObject<HTMLSelectElement>;
   constructor(props: Props) {
     super(props);
-    this.state = {numRows: 20};
+    this.state = {numRows: 20, selected: "No satellites available."};
     this.handleChange = this.handleChange.bind(this);
-    this.satSelector = React.createRef();
     this.onResize = this.onResize.bind(this);
   }
 
@@ -38,10 +37,9 @@ class PassTable extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const selector = this.satSelector.current;
-    if (selector && selector.value.length > 0) {
-      this.setState({ selected: selector.value });
-      this.props.updateSatPassesCallback(selector.value);
+    if (this.props.satData.length > 0) {
+      const firstSatName = this.props.satData[0].name;
+      this.setState({ selected: firstSatName }, () => this.props.updateSatPassesCallback(firstSatName));
     }
   }
 
@@ -51,10 +49,9 @@ class PassTable extends React.Component<Props, State> {
       prevProps.satData.length !== this.props.satData.length
     ) {
       // If satData has been changed and thus autoselect may have changed, update the table to match what is currently selected
-      const selector = this.satSelector.current;
-      if (selector && selector.value.length > 0) {
-        this.setState({ selected: selector.value });
-        this.props.updateSatPassesCallback(selector.value);
+      if (this.props.satData.length > 0) {
+        const firstSatName = this.props.satData[0].name;
+        this.setState({ selected: firstSatName }, () => this.props.updateSatPassesCallback(firstSatName));
       }
     }
 
@@ -118,13 +115,14 @@ class PassTable extends React.Component<Props, State> {
     return (
       <div className="scroll-container">
         <ReactResizeDetector handleHeight onResize={this.onResize} />
-        <select
-          value={this.state.selected}
-          ref={this.satSelector}
-          onChange={this.handleChange}
-        >
-          {satelliteOptions}
-        </select>
+        <FormGroup>
+          <HTMLSelect
+            value={this.state.selected}
+            onChange={this.handleChange}
+          >
+            {satelliteOptions}
+          </HTMLSelect>
+        </FormGroup>
         <ReactTable data={data} columns={columns} pageSize={this.state.numRows} />
       </div>
     );
