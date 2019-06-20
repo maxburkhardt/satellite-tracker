@@ -1,7 +1,13 @@
 import React from "react";
 import ReactTable, { RowInfo, Filter } from "react-table";
 import ReactResizeDetector from "react-resize-detector";
-import { Button, Switch, FormGroup, InputGroup } from "@blueprintjs/core";
+import {
+  Button,
+  Switch,
+  FormGroup,
+  InputGroup,
+  HTMLSelect
+} from "@blueprintjs/core";
 import "react-table/react-table.css";
 import { Satellite } from "../util/SharedTypes";
 
@@ -35,7 +41,7 @@ class SatSelector extends React.Component<Props, State> {
   }
 
   onResize(width: number, height: number) {
-    this.setState({ numRows: Math.floor((height - 340) / 45) });
+    this.setState({ numRows: Math.floor((height - 384) / 45) });
   }
 
   submitNewSat() {
@@ -56,7 +62,8 @@ class SatSelector extends React.Component<Props, State> {
           row[filter.id].toLowerCase().includes(filter.value.toLowerCase())
       },
       {
-        Header: "Toggle Visibility",
+        Header: "Enabled?",
+        accessor: "enabled",
         Cell: (row: RowInfo) => (
           <Switch
             checked={row.original.enabled}
@@ -65,23 +72,31 @@ class SatSelector extends React.Component<Props, State> {
             }
           />
         ),
-        Filter: () => (
-          <div>
-            <Button
-              small
-              onClick={() => this.props.bulkSetEnabledCallback(true)}
-            >
-              Enable All
-            </Button>
-            <br />
-            <Button
-              small
-              onClick={() => this.props.bulkSetEnabledCallback(false)}
-            >
-              Disable All
-            </Button>
-          </div>
-        )
+        Filter: ({
+          filter,
+          onChange
+        }: {
+          filter: Filter;
+          onChange: (selected: string) => void;
+        }) => (
+          <HTMLSelect
+            value={filter ? filter.value : "all"}
+            onChange={event => onChange(event.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="enabled">Enabled</option>
+            <option value="disabled">Disabled</option>
+          </HTMLSelect>
+        ),
+        filterMethod: (filter: Filter, row: { [key: string]: boolean }) => {
+          if (filter.value === "enabled") {
+            return row[filter.id];
+          } else if (filter.value === "disabled") {
+            return !row[filter.id];
+          } else {
+            return true;
+          }
+        }
       },
       {
         Header: "Actions",
@@ -127,6 +142,17 @@ class SatSelector extends React.Component<Props, State> {
             }
           />
           <Button onClick={this.submitNewSat}>Save</Button>
+        </FormGroup>
+        <FormGroup label="Global Visibility">
+          <Button small onClick={() => this.props.bulkSetEnabledCallback(true)}>
+            Enable All
+          </Button>
+          <Button
+            small
+            onClick={() => this.props.bulkSetEnabledCallback(false)}
+          >
+            Disable All
+          </Button>
         </FormGroup>
         <ReactTable
           data={this.props.satData}
