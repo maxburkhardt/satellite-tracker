@@ -49,7 +49,8 @@ class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      userLocation: { latitude: 0, longitude: 0 },
+      // Default is the Johnson Space Center
+      userLocation: { latitude: 29.559406, longitude: -95.089692 },
       satPositions: [],
       satProperties: [],
       satPasses: {},
