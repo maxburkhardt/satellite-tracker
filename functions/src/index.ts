@@ -5,8 +5,11 @@ import request, {
   RequestPromiseOptions
 } from "request-promise";
 import { RequestAPI, RequiredUriUrl } from "request";
+import path from "path";
+import os from "os";
+import fs from "fs";
 
-const app = admin.initializeApp({
+admin.initializeApp({
   storageBucket: functions.config().storage.bucket
 });
 
@@ -62,16 +65,25 @@ async function downloadTle(
   return parsed;
 }
 
+async function saveToStorage(tleData: Array<SatelliteTle>) {
+  const bucket = admin.storage().bucket();
+  const tempFilePath = path.join(os.tmpdir(), "birds.json");
+  fs.writeFileSync(tempFilePath, JSON.stringify(tleData));
+  return await bucket.upload(tempFilePath, {
+    destination: "birds.json",
+    metadata: {
+      contentType: "application/json"
+    }
+  });
+}
+
 export const refreshTle = functions.https.onRequest(
   async (_incomingRequest, outgoingResponse) => {
-    // Placeholder until we write to cloud storage
-    let appName = app.name;
-    appName = appName;
-    // End placeholder
     const cookieJar = request.jar();
     const customRequest = request.defaults({ jar: cookieJar });
     await spaceTrackLogin(customRequest);
     const parsed = await downloadTle(customRequest);
-    return outgoingResponse.send(JSON.stringify(parsed));
+    await saveToStorage(parsed);
+    return outgoingResponse.send("OK");
   }
 );
