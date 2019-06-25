@@ -6,3 +6,6 @@
 typings/
 
 node_modules/
+
+# Ignore runtime config because it has secrets
+.runtimeconfig.json
