@@ -80,13 +80,13 @@ async function saveToStorage(tleData: Array<SatelliteTle>) {
   return await bucket.file(FILENAME).makePublic();
 }
 
-export const refreshTle = functions.https.onRequest(
-  async (_incomingRequest, outgoingResponse) => {
+export const refreshTle = functions.pubsub.schedule("every 24 hours").onRun(
+  async (_context) => {
     const cookieJar = request.jar();
     const customRequest = request.defaults({ jar: cookieJar });
     await spaceTrackLogin(customRequest);
     const parsed = await downloadTle(customRequest);
     await saveToStorage(parsed);
-    return outgoingResponse.send("OK");
+    console.log(`Successfully downloaded ${parsed.length} satellites.`);
   }
 );
