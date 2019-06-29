@@ -14,12 +14,18 @@ import {
   Satellite,
   LatLong,
   SatellitePass,
-  SatellitePosition
+  SatellitePosition,
+  SatelliteTle
 } from "../util/SharedTypes";
 import { saveSatellite } from "./LocalStorage";
 
-export function getDefaultTleData(): Promise<string> {
-  return fetch("/birds.txt").then(response => response.text());
+export function getDefaultTleData(): Promise<Array<SatelliteTle>> {
+  console.log(`environment: ${process.env.NODE_ENV}`);
+  const datafileUrl =
+    process.env.NODE_ENV === "development"
+      ? "/birds.json"
+      : "https://storage.googleapis.com/satellite-tracker-e893ca.appspot.com/birds.json";
+  return fetch(datafileUrl).then(response => response.json());
 }
 
 export function parseTleData(
@@ -33,8 +39,14 @@ export function parseTleData(
   const secondStanza = line2.split(" ").filter(function(i: string) {
     return i !== "";
   });
+  let satName = "";
+  if (name.substring(0, 2) === "0 ") {
+    satName = name.substring(2, name.length);
+  } else {
+    satName = name;
+  }
   const sat: Satellite = {
-    name: name,
+    name: satName,
     line1: line1,
     line2: line2,
     catalogNum: parseFloat(
@@ -63,10 +75,9 @@ export function parseTleData(
 }
 
 export async function getDefaultSatellites(): Promise<void> {
-  const rawdata = await getDefaultTleData();
-  let data: string[] = rawdata.split("\n");
-  for (let i = 0; i < data.length; i += 3) {
-    parseTleData(data[i], data[i + 1], data[i + 2]);
+  const data = await getDefaultTleData();
+  for (const satellite of data) {
+    parseTleData(satellite.name, satellite.line1, satellite.line2);
   }
 }
 

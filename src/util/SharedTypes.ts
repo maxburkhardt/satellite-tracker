@@ -49,3 +49,9 @@ export type SatellitePass = {
   los: Date;
   losAzimuth: number;
 };
+
+export type SatelliteTle = {
+  name: string;
+  line1: string;
+  line2: string;
+};
