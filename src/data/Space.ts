@@ -20,7 +20,6 @@ import {
 import { saveSatellite } from "./LocalStorage";
 
 export function getDefaultTleData(): Promise<Array<SatelliteTle>> {
-  console.log(`environment: ${process.env.NODE_ENV}`);
   const datafileUrl =
     process.env.NODE_ENV === "development"
       ? "/birds.json"
