@@ -19,6 +19,8 @@ export type SatelliteTle = {
   line2: string;
 };
 
+const FILENAME = "birds.json";
+
 async function spaceTrackLogin(
   requestApi: RequestAPI<RequestPromise, RequestPromiseOptions, RequiredUriUrl>
 ) {
@@ -69,12 +71,13 @@ async function saveToStorage(tleData: Array<SatelliteTle>) {
   const bucket = admin.storage().bucket();
   const tempFilePath = path.join(os.tmpdir(), "birds.json");
   fs.writeFileSync(tempFilePath, JSON.stringify(tleData));
-  return await bucket.upload(tempFilePath, {
-    destination: "birds.json",
+  await bucket.upload(tempFilePath, {
+    destination: FILENAME,
     metadata: {
       contentType: "application/json"
     }
   });
+  return await bucket.file(FILENAME).makePublic();
 }
 
 export const refreshTle = functions.https.onRequest(
