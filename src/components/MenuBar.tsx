@@ -8,10 +8,6 @@ export type Props = {
 }
 
 class MenuBar extends React.Component<Props> {
-    constructor(props: Props) {
-        super(props);
-    }
-
     render() {
         const addWindowMenu = (
             <Menu>

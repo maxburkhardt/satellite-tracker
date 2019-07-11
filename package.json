@@ -17,7 +17,8 @@
     "react-table": "^6.9.2",
     "satellite.js": "^3.0.1",
     "style-loader": "^0.23.1",
-    "typescript": "3.4.5"
+    "typescript": "3.4.5",
+    "lodash": ">=4.17.13"
   },
   "scripts": {
     "prettier": "prettier --write src/**/*.ts src/**/*.tsx",
