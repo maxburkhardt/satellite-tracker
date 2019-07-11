@@ -1,4 +1,5 @@
 import React from "react";
+import MenuBar from "../components/MenuBar";
 import { Mosaic, MosaicWindow, MosaicNode } from "react-mosaic-component";
 import Controls from "../components/Controls";
 import Radar from "../components/Radar";
@@ -28,7 +29,8 @@ import {
   saveMosaicLayout,
   getMosaicLayout,
   deleteSavedSatellite,
-  saveSatellite
+  saveSatellite,
+  clearLocalData
 } from "../data/LocalStorage";
 
 export type Props = {};
@@ -196,6 +198,10 @@ class TrackerContainer extends React.Component<Props, State> {
     this.setState({ requestedPassTableSelection: satellite });
   }
 
+  addWindowCallback(windowName: ViewId): void {
+
+  }
+
   private onMosaicChange = (currentNode: MosaicNode<ViewId> | null) => {
     saveMosaicLayout(this.state.condensedView, currentNode);
     this.setState({ mosaicRootNode: currentNode });
@@ -289,18 +295,21 @@ class TrackerContainer extends React.Component<Props, State> {
     };
 
     return (
-      <div className="trackerWindow">
-        <Mosaic
-          renderTile={(id, path) => (
-            <MosaicWindow<ViewId> path={path} title={TITLE_MAP[id]}>
-              {ELEMENT_MAP[id]}
-            </MosaicWindow>
-          )}
-          value={this.state.mosaicRootNode}
-          onChange={this.onMosaicChange}
-          onRelease={this.onMosaicRelease}
-        />
-      </div>
+      <React.Fragment>
+        <MenuBar addWindowCallback={this.addWindowCallback} resetDataCallback={clearLocalData} />
+        <div className="trackerWindow">
+          <Mosaic
+            renderTile={(id, path) => (
+              <MosaicWindow<ViewId> path={path} title={TITLE_MAP[id]}>
+                {ELEMENT_MAP[id]}
+              </MosaicWindow>
+            )}
+            value={this.state.mosaicRootNode}
+            onChange={this.onMosaicChange}
+            onRelease={this.onMosaicRelease}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }

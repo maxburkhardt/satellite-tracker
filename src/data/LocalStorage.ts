@@ -80,3 +80,7 @@ export function getMosaicLayout(condensed: boolean): MosaicNode<ViewId> | null {
     return null;
   }
 }
+
+export function clearLocalData(): void {
+  localStorage.clear();
+}
