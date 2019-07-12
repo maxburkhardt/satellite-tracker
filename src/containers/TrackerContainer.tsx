@@ -1,6 +1,18 @@
 import React from "react";
 import MenuBar from "../components/MenuBar";
-import { Mosaic, MosaicWindow, MosaicNode } from "react-mosaic-component";
+import {
+  Mosaic,
+  MosaicWindow,
+  MosaicNode,
+  getPathToCorner,
+  Corner,
+  getNodeAtPath,
+  MosaicParent,
+  MosaicDirection,
+  getOtherDirection,
+  updateTree
+} from "react-mosaic-component";
+import dropRight from "lodash/dropRight";
 import Controls from "../components/Controls";
 import Radar from "../components/Radar";
 import PassTable from "../components/PassTable";
@@ -30,7 +42,9 @@ import {
   getMosaicLayout,
   deleteSavedSatellite,
   saveSatellite,
-  clearLocalData
+  clearLocalData,
+  getWindowTypeMap,
+  saveWindowTypeMap
 } from "../data/LocalStorage";
 
 export type Props = {};
@@ -41,15 +55,29 @@ export type State = {
   satProperties: Array<Satellite>;
   satPasses: { [key: string]: Array<SatellitePass> };
   requestedPassTableSelection: string;
-  mosaicRootNode: MosaicNode<ViewId> | null;
+  mosaicRootNode: MosaicNode<number> | null;
+  windowTypeMap: WindowTypeMap;
   condensedView: boolean;
 };
 
-export type ViewId = "controls" | "radar" | "passTable" | "map" | "selector";
+export type WindowType =
+  | "controls"
+  | "radar"
+  | "passTable"
+  | "map"
+  | "selector";
+export type WindowTypeMap = { [key: string]: WindowType };
+export type WindowElementMap = { [key: string]: JSX.Element };
 
 class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    let rootNode: MosaicNode<number>, windowMap: WindowTypeMap;
+    if (window.innerWidth <= 850) {
+      ({ rootNode, windowMap } = this.getCondensedMosaicLayout());
+    } else {
+      ({ rootNode, windowMap } = this.getExpandedMosaicLayout());
+    }
     this.state = {
       // Default is the Johnson Space Center
       userLocation: { latitude: 29.559406, longitude: -95.089692 },
@@ -57,10 +85,8 @@ class TrackerContainer extends React.Component<Props, State> {
       satProperties: [],
       satPasses: {},
       requestedPassTableSelection: "",
-      mosaicRootNode:
-        window.innerWidth <= 850
-          ? this.getCondensedMosaicLayout()
-          : this.getExpandedMosaicLayout(),
+      mosaicRootNode: rootNode,
+      windowTypeMap: windowMap,
       condensedView: window.innerWidth <= 850
     };
     this.addNewTleCallback = this.addNewTleCallback.bind(this);
@@ -69,6 +95,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.updateSatEnabledCallback = this.updateSatEnabledCallback.bind(this);
     this.bulkSetEnabledCallback = this.bulkSetEnabledCallback.bind(this);
     this.deleteSatCallback = this.deleteSatCallback.bind(this);
+    this.addWindowCallback = this.addWindowCallback.bind(this);
     this.processLocalSatData = this.processLocalSatData.bind(this);
     this.periodicProcessLocalSatData = this.periodicProcessLocalSatData.bind(
       this
@@ -76,6 +103,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.requestPassTableSelectionCallback = this.requestPassTableSelectionCallback.bind(
       this
     );
+    this.createNewWindow = this.createNewWindow.bind(this);
     this.onMosaicChange = this.onMosaicChange.bind(this);
     this.onMosaicRelease = this.onMosaicRelease.bind(this);
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
@@ -87,37 +115,57 @@ class TrackerContainer extends React.Component<Props, State> {
     saveUserLocation(location);
   }
 
-  getExpandedMosaicLayout(): MosaicNode<ViewId> {
-    let initialRootNode: MosaicNode<ViewId> | null = getMosaicLayout(false);
-    if (initialRootNode === null) {
+  getExpandedMosaicLayout(): {
+    rootNode: MosaicNode<number>;
+    windowMap: WindowTypeMap;
+  } {
+    let initialRootNode: MosaicNode<number> | null = getMosaicLayout(false);
+    let initialWindowTypeMap: {
+      [key: string]: WindowType;
+    } | null = getWindowTypeMap();
+    if (initialRootNode === null || initialWindowTypeMap === null) {
       initialRootNode = {
         direction: "row",
         first: {
           direction: "row",
           first: {
             direction: "column",
-            first: "controls",
-            second: "radar"
+            first: 1,
+            second: 2
           },
           second: {
             direction: "column",
-            first: "passTable",
-            second: "map"
+            first: 3,
+            second: 4
           },
           splitPercentage: 30
         },
-        second: "selector",
+        second: 5,
         splitPercentage: 80
       };
+      initialWindowTypeMap = {
+        "1": "controls",
+        "2": "radar",
+        "3": "passTable",
+        "4": "map",
+        "5": "selector"
+      };
     }
-    return initialRootNode;
+    return { rootNode: initialRootNode, windowMap: initialWindowTypeMap };
   }
 
-  getCondensedMosaicLayout(): MosaicNode<ViewId> {
-    return this.condenseLayoutVertical(this.getExpandedMosaicLayout());
+  getCondensedMosaicLayout(): {
+    rootNode: MosaicNode<number>;
+    windowMap: WindowTypeMap;
+  } {
+    const { rootNode, windowMap } = this.getExpandedMosaicLayout();
+    return {
+      rootNode: this.condenseLayoutVertical(rootNode),
+      windowMap: windowMap
+    };
   }
 
-  condenseLayoutVertical(node: MosaicNode<ViewId>): MosaicNode<ViewId> {
+  condenseLayoutVertical(node: MosaicNode<number>): MosaicNode<number> {
     if (typeof node !== "object") {
       // This is just a ViewId
       return node;
@@ -198,28 +246,135 @@ class TrackerContainer extends React.Component<Props, State> {
     this.setState({ requestedPassTableSelection: satellite });
   }
 
-  addWindowCallback(windowName: ViewId): void {
-
+  generateWindowElementMap(types: WindowTypeMap): WindowElementMap {
+    const elementMap: WindowElementMap = {};
+    for (let i of Object.keys(types)) {
+      elementMap[i] = this.createNewWindow(types[i]);
+    }
+    return elementMap;
   }
 
-  private onMosaicChange = (currentNode: MosaicNode<ViewId> | null) => {
+  createNewWindow(type: WindowType): JSX.Element {
+    if (type === "controls") {
+      return (
+        <Controls
+          userLocation={this.state.userLocation}
+          updateLocationCallback={this.updateUserLocation}
+        />
+      );
+    } else if (type === "radar") {
+      return (
+        <Radar
+          userLocation={this.state.userLocation}
+          satData={this.state.satPositions}
+        />
+      );
+    } else if (type === "passTable") {
+      return (
+        <PassTable
+          satData={this.state.satPositions}
+          satPasses={this.state.satPasses}
+          requestedSelection={this.state.requestedPassTableSelection}
+          updateSatPassesCallback={this.updateSatPassesCallback}
+        />
+      );
+    } else if (type === "selector") {
+      return (
+        <SatSelector
+          updateSatEnabledCallback={this.updateSatEnabledCallback}
+          bulkSetEnabledCallback={this.bulkSetEnabledCallback}
+          addNewTleCallback={this.addNewTleCallback}
+          deleteSatCallback={this.deleteSatCallback}
+          satData={this.state.satProperties}
+        />
+      );
+    } else {
+      return (
+        <SatMap
+          userLocation={this.state.userLocation}
+          satData={this.state.satPositions}
+          requestPassTableSelectionCallback={
+            this.requestPassTableSelectionCallback
+          }
+        />
+      );
+    }
+  }
+
+  addWindowCallback(windowName: WindowType): void {
+    let newRootNode: MosaicNode<number>;
+    const newWindow = Object.keys(this.state.windowTypeMap).length + 1;
+    if (this.state.mosaicRootNode) {
+      const path = getPathToCorner(this.state.mosaicRootNode, Corner.TOP_RIGHT);
+      const parent = getNodeAtPath(
+        this.state.mosaicRootNode,
+        dropRight(path)
+      ) as MosaicParent<number>;
+      const destination = getNodeAtPath(
+        this.state.mosaicRootNode,
+        path
+      ) as MosaicNode<number>;
+      const direction: MosaicDirection = parent
+        ? getOtherDirection(parent.direction)
+        : "row";
+
+      let first: MosaicNode<number>;
+      let second: MosaicNode<number>;
+      if (direction === "row") {
+        first = destination;
+        second = newWindow;
+      } else {
+        first = newWindow;
+        second = destination;
+      }
+
+      newRootNode = updateTree(this.state.mosaicRootNode, [
+        {
+          path,
+          spec: {
+            $set: {
+              direction,
+              first,
+              second
+            }
+          }
+        }
+      ]);
+    } else {
+      newRootNode = 1;
+    }
+
+    const windowTypeMap = this.state.windowTypeMap;
+    windowTypeMap[newWindow] = windowName;
+
+    this.setState(
+      { mosaicRootNode: newRootNode, windowTypeMap: windowTypeMap },
+      () => {
+        saveMosaicLayout(this.state.condensedView, this.state.mosaicRootNode);
+        saveWindowTypeMap(this.state.windowTypeMap);
+      }
+    );
+  }
+
+  private onMosaicChange = (currentNode: MosaicNode<number> | null) => {
     saveMosaicLayout(this.state.condensedView, currentNode);
+    saveWindowTypeMap(this.state.windowTypeMap);
     this.setState({ mosaicRootNode: currentNode });
   };
 
-  private onMosaicRelease = (currentNode: MosaicNode<ViewId> | null) => {
+  private onMosaicRelease = (currentNode: MosaicNode<number> | null) => {
     // do nothing
   };
 
   updateWindowDimensions() {
     if (window.innerWidth <= 850 && this.state.condensedView === false) {
       this.setState({
-        mosaicRootNode: this.getCondensedMosaicLayout(),
+        mosaicRootNode: this.getCondensedMosaicLayout().rootNode,
         condensedView: true
       });
     } else if (window.innerWidth > 850 && this.state.condensedView === true) {
       this.setState({
-        mosaicRootNode: this.getExpandedMosaicLayout(),
+        mosaicRootNode: this.getExpandedMosaicLayout().rootNode,
         condensedView: false
       });
     }
@@ -245,46 +400,7 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const ELEMENT_MAP: { [key: string]: JSX.Element } = {
-      controls: (
-        <Controls
-          userLocation={this.state.userLocation}
-          updateLocationCallback={this.updateUserLocation}
-        />
-      ),
-      radar: (
-        <Radar
-          userLocation={this.state.userLocation}
-          satData={this.state.satPositions}
-        />
-      ),
-      passTable: (
-        <PassTable
-          satData={this.state.satPositions}
-          satPasses={this.state.satPasses}
-          requestedSelection={this.state.requestedPassTableSelection}
-          updateSatPassesCallback={this.updateSatPassesCallback}
-        />
-      ),
-      map: (
-        <SatMap
-          userLocation={this.state.userLocation}
-          satData={this.state.satPositions}
-          requestPassTableSelectionCallback={
-            this.requestPassTableSelectionCallback
-          }
-        />
-      ),
-      selector: (
-        <SatSelector
-          updateSatEnabledCallback={this.updateSatEnabledCallback}
-          bulkSetEnabledCallback={this.bulkSetEnabledCallback}
-          addNewTleCallback={this.addNewTleCallback}
-          deleteSatCallback={this.deleteSatCallback}
-          satData={this.state.satProperties}
-        />
-      )
-    };
+    // const ELEMENT_MAP: { [key: string]: JSX.Element } = ;
 
     const TITLE_MAP: { [key: string]: string } = {
       controls: "Controls",
@@ -294,14 +410,24 @@ class TrackerContainer extends React.Component<Props, State> {
       selector: "Satellite Selector"
     };
 
+    const windowElements = this.generateWindowElementMap(
+      this.state.windowTypeMap
+    );
+
     return (
       <React.Fragment>
-        <MenuBar addWindowCallback={this.addWindowCallback} resetDataCallback={clearLocalData} />
+        <MenuBar
+          addWindowCallback={this.addWindowCallback}
+          resetDataCallback={clearLocalData}
+        />
         <div className="trackerWindow">
           <Mosaic
             renderTile={(id, path) => (
-              <MosaicWindow<ViewId> path={path} title={TITLE_MAP[id]}>
-                {ELEMENT_MAP[id]}
+              <MosaicWindow<number>
+                path={path}
+                title={TITLE_MAP[this.state.windowTypeMap[id.toString()]]}
+              >
+                {windowElements[id]}
               </MosaicWindow>
             )}
             value={this.state.mosaicRootNode}

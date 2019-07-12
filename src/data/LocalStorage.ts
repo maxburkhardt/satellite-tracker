@@ -1,5 +1,5 @@
 import { Satellite, LatLong } from "../util/SharedTypes";
-import { ViewId } from "../containers/TrackerContainer";
+import { WindowTypeMap } from "../containers/TrackerContainer";
 import { MosaicNode } from "react-mosaic-component";
 
 export function getSavedSatellites(): Array<Satellite> {
@@ -60,7 +60,7 @@ export function saveUserLocation(newLocation: LatLong): boolean {
 
 export function saveMosaicLayout(
   condensed: boolean,
-  node: MosaicNode<ViewId> | null
+  node: MosaicNode<number> | null
 ): boolean {
   if (node && condensed) {
     localStorage.setItem("mosaicLayoutCondensed", JSON.stringify(node));
@@ -70,12 +70,26 @@ export function saveMosaicLayout(
   return true;
 }
 
-export function getMosaicLayout(condensed: boolean): MosaicNode<ViewId> | null {
+export function getMosaicLayout(condensed: boolean): MosaicNode<number> | null {
   const savedLayout = localStorage.getItem(
     condensed ? "mosaicLayoutCondensed" : "mosaicLayoutExpanded"
   );
   if (savedLayout) {
-    return JSON.parse(savedLayout) as MosaicNode<ViewId>;
+    return JSON.parse(savedLayout) as MosaicNode<number>;
+  } else {
+    return null;
+  }
+}
+
+export function saveWindowTypeMap(windowTypeMap: WindowTypeMap): boolean {
+  localStorage.setItem("windowTypeMap", JSON.stringify(windowTypeMap));
+  return true;
+}
+
+export function getWindowTypeMap(): WindowTypeMap | null {
+  const savedWindows = localStorage.getItem("windowTypeMap");
+  if (savedWindows) {
+    return JSON.parse(savedWindows) as WindowTypeMap;
   } else {
     return null;
   }
