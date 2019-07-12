@@ -7,6 +7,8 @@
     "@blueprintjs/icons": "^3.8.0",
     "css-loader": "^2.1.1",
     "leaflet": "^1.5.1",
+    "lodash": "^4.17.14",
+    "lodash.template": "^4.5.0",
     "moment": "^2.24.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -17,8 +19,7 @@
     "react-table": "^6.9.2",
     "satellite.js": "^3.0.1",
     "style-loader": "^0.23.1",
-    "typescript": "3.4.5",
-    "lodash": ">=4.17.13"
+    "typescript": "3.4.5"
   },
   "scripts": {
     "prettier": "prettier --write src/**/*.ts src/**/*.tsx",
