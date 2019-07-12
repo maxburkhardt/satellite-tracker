@@ -46,6 +46,7 @@ import {
   getWindowTypeMap,
   saveWindowTypeMap
 } from "../data/LocalStorage";
+import { inCondensedMode } from "../util/DisplayUtil";
 
 export type Props = {};
 
@@ -73,7 +74,7 @@ class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     let rootNode: MosaicNode<number>, windowMap: WindowTypeMap;
-    if (window.innerWidth <= 850) {
+    if (inCondensedMode()) {
       ({ rootNode, windowMap } = this.getCondensedMosaicLayout());
     } else {
       ({ rootNode, windowMap } = this.getExpandedMosaicLayout());
@@ -87,7 +88,7 @@ class TrackerContainer extends React.Component<Props, State> {
       requestedPassTableSelection: "",
       mosaicRootNode: rootNode,
       windowTypeMap: windowMap,
-      condensedView: window.innerWidth <= 850
+      condensedView: inCondensedMode()
     };
     this.addNewTleCallback = this.addNewTleCallback.bind(this);
     this.updateUserLocation = this.updateUserLocation.bind(this);
@@ -367,12 +368,12 @@ class TrackerContainer extends React.Component<Props, State> {
   };
 
   updateWindowDimensions() {
-    if (window.innerWidth <= 850 && this.state.condensedView === false) {
+    if (inCondensedMode() && this.state.condensedView === false) {
       this.setState({
         mosaicRootNode: this.getCondensedMosaicLayout().rootNode,
         condensedView: true
       });
-    } else if (window.innerWidth > 850 && this.state.condensedView === true) {
+    } else if (!inCondensedMode() && this.state.condensedView === true) {
       this.setState({
         mosaicRootNode: this.getExpandedMosaicLayout().rootNode,
         condensedView: false

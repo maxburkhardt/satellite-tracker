@@ -9,6 +9,7 @@ import {
   Popover
 } from "@blueprintjs/core";
 import { WindowType } from "../containers/TrackerContainer";
+import { inCondensedMode } from "../util/DisplayUtil";
 
 export type Props = {
   resetDataCallback: () => void;
@@ -52,10 +53,10 @@ class MenuBar extends React.Component<Props> {
           <Navbar.Heading>Satellite Tracking</Navbar.Heading>
           <Navbar.Divider />
           <Popover content={addWindowMenu} position={Position.TOP}>
-            <Button icon="add">Add a Window</Button>
+            <Button icon="add">{!inCondensedMode() && "Add a Window"}</Button>
           </Popover>
           <Button icon="trash" onClick={this.props.resetDataCallback}>
-            Clear Local Data
+            {!inCondensedMode() && "Clear Local Data"}
           </Button>
           <Button
             icon="git-branch"
@@ -66,7 +67,7 @@ class MenuBar extends React.Component<Props> {
               )
             }
           >
-            GitHub
+            {!inCondensedMode() && "GitHub"}
           </Button>
         </Navbar.Group>
       </Navbar>
