@@ -57,6 +57,17 @@ class MenuBar extends React.Component<Props> {
           <Button icon="trash" onClick={this.props.resetDataCallback}>
             Clear Local Data
           </Button>
+          <Button
+            icon="git-branch"
+            onClick={() =>
+              window.open(
+                "https://github.com/maxburkhardt/satellite-tracker",
+                "_blank"
+              )
+            }
+          >
+            GitHub
+          </Button>
         </Navbar.Group>
       </Navbar>
     );
