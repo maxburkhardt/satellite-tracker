@@ -80,8 +80,7 @@ class TrackerContainer extends React.Component<Props, State> {
       ({ rootNode, windowMap } = this.getExpandedMosaicLayout());
     }
     this.state = {
-      // Default is the Johnson Space Center
-      userLocation: { latitude: 29.559406, longitude: -95.089692 },
+      userLocation: this.getUserLocation(),
       satPositions: [],
       satProperties: [],
       satPasses: {},
@@ -114,6 +113,16 @@ class TrackerContainer extends React.Component<Props, State> {
     // re-process local data since changing observer changes satellite position
     this.setState({ userLocation: location }, () => this.processLocalSatData());
     saveUserLocation(location);
+  }
+
+  getUserLocation(): LatLong {
+    const saved = getSavedUserLocation();
+    if (saved) {
+      return saved;
+    } else {
+      // Default is the Johnson Space Center
+      return { latitude: 29.559406, longitude: -95.089692 };
+    }
   }
 
   getExpandedMosaicLayout(): {
@@ -382,10 +391,6 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const savedLocation = getSavedUserLocation();
-    if (savedLocation) {
-      this.updateUserLocation(savedLocation);
-    }
     // schedule periodic updating of locations
     this.periodicProcessLocalSatData();
     // register event handler to deal with responsivity

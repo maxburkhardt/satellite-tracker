@@ -19,7 +19,10 @@ export type State = {
 class Controls extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { latitudeInput: "29.559406", longitudeInput: "-95.089692" };
+    this.state = {
+      latitudeInput: this.props.userLocation.latitude.toString(),
+      longitudeInput: this.props.userLocation.longitude.toString()
+    };
     this.geolocateClick = this.geolocateClick.bind(this);
     this.getGeoSuccess = this.getGeoSuccess.bind(this);
     this.getGeoError = this.getGeoError.bind(this);
