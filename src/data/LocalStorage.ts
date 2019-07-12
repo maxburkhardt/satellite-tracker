@@ -97,4 +97,5 @@ export function getWindowTypeMap(): WindowTypeMap | null {
 
 export function clearLocalData(): void {
   localStorage.clear();
+  window.location.reload();
 }

@@ -351,7 +351,7 @@ class TrackerContainer extends React.Component<Props, State> {
         }
       ]);
     } else {
-      newRootNode = 1;
+      newRootNode = newWindow;
     }
 
     const windowTypeMap = this.state.windowTypeMap;
