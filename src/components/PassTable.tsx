@@ -4,6 +4,7 @@ import "react-table/react-table.css";
 import ReactResizeDetector from "react-resize-detector";
 import { SatellitePosition, SatellitePass } from "../util/SharedTypes";
 import { HTMLSelect, FormGroup } from "@blueprintjs/core";
+import { Moment } from "moment";
 
 export type Props = {
   satData: Array<SatellitePosition>;
@@ -73,35 +74,39 @@ class PassTable extends React.Component<Props, State> {
     return ((rad * 180) / Math.PI).toFixed(2);
   }
 
+  formatDate(d: Moment): string {
+    return d.format("MM-DD HH:MM ZZ");
+  }
+
   render() {
     const columns = [
       {
         Header: "AOS",
         id: "aos",
-        accessor: (d: SatellitePass) => d.aos.toString()
+        accessor: (d: SatellitePass) => this.formatDate(d.aos)
       },
       {
         Header: "AOS Azimuth",
         id: "aosAzimuth",
         accessor: (d: SatellitePass) =>
-          this.radiansToDegrees(d.aosAzimuth).toString()
+          `${this.radiansToDegrees(d.aosAzimuth).toString()}°`
       },
       {
         Header: "Max Elevation",
         id: "maxElevation",
         accessor: (d: SatellitePass) =>
-          this.radiansToDegrees(d.maxElevation).toString()
+          `${this.radiansToDegrees(d.maxElevation).toString()}°`
       },
       {
         Header: "LOS",
         id: "los",
-        accessor: (d: SatellitePass) => d.los.toString()
+        accessor: (d: SatellitePass) => this.formatDate(d.los)
       },
       {
         Header: "LOS Azimuth",
         id: "losAzimuth",
         accessor: (d: SatellitePass) =>
-          this.radiansToDegrees(d.losAzimuth).toString()
+          `${this.radiansToDegrees(d.losAzimuth).toString()}°`
       }
     ];
     const satelliteOptions = this.props.satData.map(sat => (

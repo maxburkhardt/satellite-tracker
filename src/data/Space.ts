@@ -131,16 +131,16 @@ export function getFuturePasses(
       if (!inPass) {
         inPass = true;
         passes.push({
-          aos: timeIndex.toDate(),
+          aos: timeIndex,
           maxElevation: positionData.elevation,
           aosAzimuth: positionData.azimuth,
-          positions: [[timeIndex.toDate(), positionData]],
-          los: new Date("2300-01-01T00:00:00"), // will be filled in when we find it
+          positions: [[timeIndex, positionData]],
+          los: moment("2300-01-01T00:00:00"), // will be filled in when we find it
           losAzimuth: Infinity // will be filled in when we find it
         });
       } else {
         const currentPass = passes[passes.length - 1];
-        currentPass.positions.push([timeIndex.toDate(), positionData]);
+        currentPass.positions.push([timeIndex, positionData]);
         if (positionData.elevation > currentPass.maxElevation) {
           currentPass.maxElevation = positionData.elevation;
         }
@@ -149,7 +149,7 @@ export function getFuturePasses(
       if (inPass) {
         inPass = false;
         const thisPass = passes[passes.length - 1];
-        thisPass.los = timeIndex.toDate();
+        thisPass.los = timeIndex;
         thisPass.losAzimuth = positionData.azimuth;
       }
     }

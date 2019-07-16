@@ -1,3 +1,5 @@
+import {Moment} from "moment";
+
 export type LatLong = {
   latitude: number;
   longitude: number;
@@ -42,11 +44,11 @@ export type SatellitePosition = {
 };
 
 export type SatellitePass = {
-  aos: Date;
+  aos: Moment;
   maxElevation: number;
   aosAzimuth: number;
-  positions: Array<[Date, SatellitePosition]>;
-  los: Date;
+  positions: Array<[Moment, SatellitePosition]>;
+  los: Moment;
   losAzimuth: number;
 };
 
