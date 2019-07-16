@@ -277,6 +277,9 @@ class TrackerContainer extends React.Component<Props, State> {
         <Radar
           userLocation={this.state.userLocation}
           satData={this.state.satPositions}
+          requestPassTableSelectionCallback={
+            this.requestPassTableSelectionCallback
+          }
         />
       );
     } else if (type === "passTable") {

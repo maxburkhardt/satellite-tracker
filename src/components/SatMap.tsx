@@ -59,11 +59,13 @@ class SatMap extends React.Component<Props, State> {
         <Popup>
           <strong>{sat.name}</strong>
           <br />
-          Longitude: {sat.longitude}
+          Longitude: {sat.longitude.toFixed(4)}
           <br />
-          Latitude: {sat.latitude}
+          Latitude: {sat.latitude.toFixed(4)}
           <br />
-          Distance: {sat.rangeSat}
+          Distance: {sat.rangeSat.toFixed(2)} km
+          <br />
+          Height: {sat.height.toFixed(2)} km
         </Popup>
       </Marker>
     );

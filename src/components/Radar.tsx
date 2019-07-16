@@ -5,6 +5,7 @@ import ReactResizeDetector from "react-resize-detector";
 export type Props = {
   userLocation: LatLong;
   satData: Array<SatellitePosition>;
+  requestPassTableSelectionCallback: (sat: string) => void;
 };
 
 export type State = {
@@ -38,17 +39,17 @@ class Radar extends React.Component<Props, State> {
     const yPos = radius * Math.sin(sat.azimuth - Math.PI / 2) + yOffset;
     const iconSize = 10;
     return (
-      <React.Fragment>
+      <g onClick={() => this.props.requestPassTableSelectionCallback(sat.name)}>
         <rect
           x={xPos - iconSize / 2}
           y={yPos - iconSize / 2}
           height={iconSize}
           width={iconSize}
         />
-        <text x={xPos + iconSize} y={yPos + 5}>
+        <text x={xPos + iconSize} y={yPos + 5} className="underline">
           {sat.name}
         </text>
-      </React.Fragment>
+      </g>
     );
   }
 
@@ -93,17 +94,17 @@ class Radar extends React.Component<Props, State> {
             stroke={uiColor}
           />
           <line
-            x1={0}
+            x1={xCenter - radius}
             y1={yCenter}
-            x2={this.state.width}
+            x2={xCenter + radius}
             y2={yCenter}
             stroke={uiColor}
           />
           <line
             x1={xCenter}
-            y1={0}
+            y1={yCenter - radius}
             x2={xCenter}
-            y2={this.state.height}
+            y2={yCenter + radius}
             stroke={uiColor}
           />
           {satellites}
