@@ -35,11 +35,17 @@ class Radar extends React.Component<Props, State> {
     yOffset: number,
     radius: number
   ): JSX.Element {
-    const xPos = radius * Math.cos(sat.azimuth - Math.PI / 2) + xOffset;
-    const yPos = radius * Math.sin(sat.azimuth - Math.PI / 2) + yOffset;
+    const elevationSpecificRadius = (1 - sat.elevation) * radius;
+    const xPos =
+      elevationSpecificRadius * Math.cos(sat.azimuth - Math.PI / 2) + xOffset;
+    const yPos =
+      elevationSpecificRadius * Math.sin(sat.azimuth - Math.PI / 2) + yOffset;
     const iconSize = 10;
     return (
-      <g onClick={() => this.props.requestPassTableSelectionCallback(sat.name)}>
+      <g
+        className="pointer"
+        onClick={() => this.props.requestPassTableSelectionCallback(sat.name)}
+      >
         <rect
           x={xPos - iconSize / 2}
           y={yPos - iconSize / 2}

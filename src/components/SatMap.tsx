@@ -3,6 +3,7 @@ import React from "react";
 import L from "leaflet";
 import { Map, Marker, Popup, TileLayer } from "react-leaflet";
 import { LatLong, SatellitePosition } from "../util/SharedTypes";
+import { radiansToDegrees } from "../util/DisplayUtil";
 
 export type Props = {
   userLocation: LatLong;
@@ -66,6 +67,10 @@ class SatMap extends React.Component<Props, State> {
           Distance: {sat.rangeSat.toFixed(2)} km
           <br />
           Height: {sat.height.toFixed(2)} km
+          <br />
+          Azimuth: {radiansToDegrees(sat.azimuth)}
+          <br />
+          Elevation: {radiansToDegrees(sat.elevation)}
         </Popup>
       </Marker>
     );

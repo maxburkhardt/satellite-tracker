@@ -73,3 +73,7 @@ div.scroll-container {
 .bp3-navbar .bp3-button {
   margin-right: 5px;
 }
+
+.pointer {
+  cursor: pointer;
+}
