@@ -206,7 +206,7 @@ class TrackerContainer extends React.Component<Props, State> {
             if (!needsRefresh && !sat.manuallyModified) {
               const updatedMoment = moment(sat.dataUpdatedAt);
               const now = moment();
-              if (updatedMoment.add(moment.duration(2, 'days')).isBefore(now)) {
+              if (updatedMoment.add(moment.duration(2, "days")).isBefore(now)) {
                 needsRefresh = true;
               }
             }
@@ -217,7 +217,9 @@ class TrackerContainer extends React.Component<Props, State> {
       }
       this.setState({ satPositions: calculated });
       if (needsRefresh) {
-        console.log("Refreshing default satellite TLEs (current set is > 2 days old).");
+        console.log(
+          "Refreshing default satellite TLEs (current set is > 2 days old)."
+        );
         getDefaultSatellites();
       }
     });
