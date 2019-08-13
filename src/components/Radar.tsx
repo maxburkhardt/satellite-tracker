@@ -45,6 +45,7 @@ class Radar extends React.Component<Props, State> {
       <g
         className="pointer"
         onClick={() => this.props.requestPassTableSelectionCallback(sat.name)}
+        key={sat.name}
       >
         <rect
           x={xPos - iconSize / 2}
@@ -70,7 +71,11 @@ class Radar extends React.Component<Props, State> {
   }
 
   render() {
-    const radius = Math.min(this.state.width, this.state.height) / 2 - 10;
+    let radius = Math.min(this.state.width, this.state.height) / 2 - 10;
+    if (radius <= 0) {
+      // Sometimes radius is negative during load. Use a default in this case to avoid console errors.
+      radius = 100;
+    }
     const xCenter = this.state.width / 2;
     const yCenter = this.state.height / 2;
     const uiColor = "rgb(0,0,0)";
