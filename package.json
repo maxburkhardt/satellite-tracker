@@ -8,6 +8,7 @@
     "css-loader": "^2.1.1",
     "leaflet": "^1.5.1",
     "lodash": "^4.17.14",
+    "lodash-es": "^4.17.14",
     "lodash.template": "^4.5.0",
     "moment": "^2.24.0",
     "react": "^16.8.6",
