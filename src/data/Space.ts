@@ -22,7 +22,7 @@ import { saveSatellite } from "./LocalStorage";
 export function getDefaultTleData(): Promise<Array<SatelliteTle>> {
   const datafileUrl =
     process.env.NODE_ENV === "development"
-      ? "/birds.json"
+      ? "/birds-dev.json"
       : "https://storage.googleapis.com/satellite-tracker-e893ca.appspot.com/birds.json";
   return fetch(datafileUrl).then(response => response.json());
 }
