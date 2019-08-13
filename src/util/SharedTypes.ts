@@ -31,6 +31,7 @@ export type Satellite = {
   orbitNumber: number;
   dataUpdatedAt: Date;
   enabled: boolean;
+  manuallyModified?: boolean;
 };
 
 export type SatellitePosition = {

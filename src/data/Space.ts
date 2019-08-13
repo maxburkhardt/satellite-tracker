@@ -30,7 +30,8 @@ export function getDefaultTleData(): Promise<Array<SatelliteTle>> {
 export function parseTleData(
   name: string,
   line1: string,
-  line2: string
+  line2: string,
+  manualAdd: boolean
 ): Satellite {
   const firstStanza = line1.split(" ").filter(function(i: string) {
     return i !== "";
@@ -69,6 +70,9 @@ export function parseTleData(
     dataUpdatedAt: new Date(),
     enabled: true
   };
+  if (manualAdd) {
+    sat.manuallyModified = true;
+  }
   saveSatellite(sat);
   return sat;
 }
@@ -76,7 +80,7 @@ export function parseTleData(
 export async function getDefaultSatellites(): Promise<void> {
   const data = await getDefaultTleData();
   for (const satellite of data) {
-    parseTleData(satellite.name, satellite.line1, satellite.line2);
+    parseTleData(satellite.name, satellite.line1, satellite.line2, false);
   }
 }
 

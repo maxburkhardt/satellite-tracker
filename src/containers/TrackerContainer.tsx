@@ -47,6 +47,7 @@ import {
   saveWindowTypeMap
 } from "../data/LocalStorage";
 import { inCondensedMode } from "../util/DisplayUtil";
+import moment from "moment";
 
 export type Props = {};
 
@@ -190,6 +191,7 @@ class TrackerContainer extends React.Component<Props, State> {
 
   processLocalSatData() {
     const calculated: Array<SatellitePosition> = [];
+    let needsRefresh = false;
     this.setState({ satProperties: getSavedSatellites() }, () => {
       for (let sat of getSavedSatellites()) {
         try {
@@ -201,12 +203,23 @@ class TrackerContainer extends React.Component<Props, State> {
                 new Date()
               )
             );
+            if (!needsRefresh && !sat.manuallyModified) {
+              const updatedMoment = moment(sat.dataUpdatedAt);
+              const now = moment();
+              if (updatedMoment.add(moment.duration(2, 'days')).isBefore(now)) {
+                needsRefresh = true;
+              }
+            }
           }
         } catch {
           console.log(`Skipping calculation for ${sat.name} due to an error.`);
         }
       }
       this.setState({ satPositions: calculated });
+      if (needsRefresh) {
+        console.log("Refreshing default satellite TLEs (current set is > 2 days old).");
+        getDefaultSatellites();
+      }
     });
   }
 
@@ -243,7 +256,7 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   addNewTleCallback(name: string, line1: string, line2: string): void {
-    parseTleData(name, line1, line2);
+    parseTleData(name, line1, line2, true);
     this.processLocalSatData();
   }
 
