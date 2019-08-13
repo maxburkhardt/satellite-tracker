@@ -75,7 +75,7 @@ class PassTable extends React.Component<Props, State> {
   }
 
   formatDate(d: Moment): string {
-    return d.format("MM-DD HH:MM ZZ");
+    return d.format("MM-DD HH:mm ZZ");
   }
 
   render() {
