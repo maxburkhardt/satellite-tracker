@@ -35,7 +35,8 @@ class Radar extends React.Component<Props, State> {
     yOffset: number,
     radius: number
   ): JSX.Element {
-    const elevationSpecificRadius = (1 - sat.elevation) * radius;
+    const elevationSpecificRadius =
+      (1 - sat.elevation / (Math.PI / 2)) * radius;
     const xPos =
       elevationSpecificRadius * Math.cos(sat.azimuth - Math.PI / 2) + xOffset;
     const yPos =
