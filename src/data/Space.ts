@@ -178,7 +178,7 @@ export function getPassDetails(
     );
     if (positionData.elevation >= 0) {
       positions.push({
-        time: moment(timePointer.toDate()),
+        time: timePointer.toDate(),
         position: positionData
       });
     } else {

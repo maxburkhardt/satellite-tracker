@@ -77,3 +77,7 @@ div.scroll-container {
 .pointer {
   cursor: pointer;
 }
+
+.padded {
+  padding: 5px;
+}

@@ -49,6 +49,7 @@ import {
 } from "../data/LocalStorage";
 import { inCondensedMode } from "../util/DisplayUtil";
 import moment, { Moment } from "moment";
+import PassDetails from "../components/PassDetails";
 
 export type Props = {};
 
@@ -59,7 +60,7 @@ export type State = {
   satPasses: { [key: string]: Array<SatellitePass> };
   requestedPassTableSelection: string;
   mosaicRootNode: MosaicNode<number> | null;
-  windowTypeMap: WindowTypeMap;
+  windowIdentityMap: WindowIdentityMap;
   condensedView: boolean;
 };
 
@@ -67,15 +68,17 @@ export type WindowType =
   | "controls"
   | "radar"
   | "passTable"
+  | "passDetails"
   | "map"
   | "selector";
-export type WindowTypeMap = { [key: string]: WindowType };
+export type WindowIdentity = { type: WindowType; props?: any };
+export type WindowIdentityMap = { [key: string]: WindowIdentity };
 export type WindowElementMap = { [key: string]: JSX.Element };
 
 class TrackerContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    let rootNode: MosaicNode<number>, windowMap: WindowTypeMap;
+    let rootNode: MosaicNode<number>, windowMap: WindowIdentityMap;
     if (inCondensedMode()) {
       ({ rootNode, windowMap } = this.getCondensedMosaicLayout());
     } else {
@@ -88,7 +91,7 @@ class TrackerContainer extends React.Component<Props, State> {
       satPasses: {},
       requestedPassTableSelection: "",
       mosaicRootNode: rootNode,
-      windowTypeMap: windowMap,
+      windowIdentityMap: windowMap,
       condensedView: inCondensedMode()
     };
     this.addNewTleCallback = this.addNewTleCallback.bind(this);
@@ -130,11 +133,11 @@ class TrackerContainer extends React.Component<Props, State> {
 
   getExpandedMosaicLayout(): {
     rootNode: MosaicNode<number>;
-    windowMap: WindowTypeMap;
+    windowMap: WindowIdentityMap;
   } {
     let initialRootNode: MosaicNode<number> | null = getMosaicLayout(false);
     let initialWindowTypeMap: {
-      [key: string]: WindowType;
+      [key: string]: WindowIdentity;
     } | null = getWindowTypeMap();
     if (initialRootNode === null || initialWindowTypeMap === null) {
       initialRootNode = {
@@ -157,11 +160,11 @@ class TrackerContainer extends React.Component<Props, State> {
         splitPercentage: 80
       };
       initialWindowTypeMap = {
-        "1": "controls",
-        "2": "radar",
-        "3": "passTable",
-        "4": "map",
-        "5": "selector"
+        "1": { type: "controls" },
+        "2": { type: "radar" },
+        "3": { type: "passTable" },
+        "4": { type: "map" },
+        "5": { type: "selector" }
       };
     }
     return { rootNode: initialRootNode, windowMap: initialWindowTypeMap };
@@ -169,7 +172,7 @@ class TrackerContainer extends React.Component<Props, State> {
 
   getCondensedMosaicLayout(): {
     rootNode: MosaicNode<number>;
-    windowMap: WindowTypeMap;
+    windowMap: WindowIdentityMap;
   } {
     const { rootNode, windowMap } = this.getExpandedMosaicLayout();
     return {
@@ -248,11 +251,16 @@ class TrackerContainer extends React.Component<Props, State> {
     );
     const satelliteTle = getSavedSatellite(satellite);
     if (satelliteTle) {
-      console.log(
-        JSON.stringify(
-          getPassDetails(satelliteTle, this.state.userLocation, startTime)
-        )
+      const details = getPassDetails(
+        satelliteTle,
+        this.state.userLocation,
+        startTime
       );
+      console.log(JSON.stringify(details));
+      this.addWindowCallback("passDetails", {
+        passData: details,
+        userLocation: this.state.userLocation
+      });
     }
   }
 
@@ -287,23 +295,23 @@ class TrackerContainer extends React.Component<Props, State> {
     this.setState({ requestedPassTableSelection: satellite });
   }
 
-  generateWindowElementMap(types: WindowTypeMap): WindowElementMap {
+  generateWindowElementMap(identities: WindowIdentityMap): WindowElementMap {
     const elementMap: WindowElementMap = {};
-    for (let i of Object.keys(types)) {
-      elementMap[i] = this.createNewWindow(types[i]);
+    for (let i of Object.keys(identities)) {
+      elementMap[i] = this.createNewWindow(identities[i]);
     }
     return elementMap;
   }
 
-  createNewWindow(type: WindowType): JSX.Element {
-    if (type === "controls") {
+  createNewWindow(identity: WindowIdentity): JSX.Element {
+    if (identity.type === "controls") {
       return (
         <Controls
           userLocation={this.state.userLocation}
           updateLocationCallback={this.updateUserLocation}
         />
       );
-    } else if (type === "radar") {
+    } else if (identity.type === "radar") {
       return (
         <Radar
           userLocation={this.state.userLocation}
@@ -313,7 +321,7 @@ class TrackerContainer extends React.Component<Props, State> {
           }
         />
       );
-    } else if (type === "passTable") {
+    } else if (identity.type === "passTable") {
       return (
         <PassTable
           satData={this.state.satPositions}
@@ -323,7 +331,7 @@ class TrackerContainer extends React.Component<Props, State> {
           viewPassDetailsCallback={this.viewPassDetailsCallback}
         />
       );
-    } else if (type === "selector") {
+    } else if (identity.type === "selector") {
       return (
         <SatSelector
           updateSatEnabledCallback={this.updateSatEnabledCallback}
@@ -333,6 +341,8 @@ class TrackerContainer extends React.Component<Props, State> {
           satData={this.state.satProperties}
         />
       );
+    } else if (identity.type === "passDetails") {
+      return <PassDetails {...identity.props} />;
     } else {
       return (
         <SatMap
@@ -346,9 +356,9 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
-  addWindowCallback(windowName: WindowType): void {
+  addWindowCallback(windowName: WindowType, additionalProps?: any): void {
     let newRootNode: MosaicNode<number>;
-    const newWindow = Object.keys(this.state.windowTypeMap).length + 1;
+    const newWindow = Object.keys(this.state.windowIdentityMap).length + 1;
     if (this.state.mosaicRootNode) {
       const path = getPathToCorner(this.state.mosaicRootNode, Corner.TOP_RIGHT);
       const parent = getNodeAtPath(
@@ -389,21 +399,21 @@ class TrackerContainer extends React.Component<Props, State> {
       newRootNode = newWindow;
     }
 
-    const windowTypeMap = this.state.windowTypeMap;
-    windowTypeMap[newWindow] = windowName;
+    const windowIdentityMap = this.state.windowIdentityMap;
+    windowIdentityMap[newWindow] = { type: windowName, props: additionalProps };
 
     this.setState(
-      { mosaicRootNode: newRootNode, windowTypeMap: windowTypeMap },
+      { mosaicRootNode: newRootNode, windowIdentityMap: windowIdentityMap },
       () => {
         saveMosaicLayout(this.state.condensedView, this.state.mosaicRootNode);
-        saveWindowTypeMap(this.state.windowTypeMap);
+        saveWindowTypeMap(this.state.windowIdentityMap);
       }
     );
   }
 
   private onMosaicChange = (currentNode: MosaicNode<number> | null) => {
     saveMosaicLayout(this.state.condensedView, currentNode);
-    saveWindowTypeMap(this.state.windowTypeMap);
+    saveWindowTypeMap(this.state.windowIdentityMap);
     this.setState({ mosaicRootNode: currentNode });
   };
 
@@ -447,12 +457,13 @@ class TrackerContainer extends React.Component<Props, State> {
       controls: "Controls",
       radar: "Radar",
       passTable: "Pass Table",
+      passDetails: "Pass Details",
       map: "World Map",
       selector: "Satellite Selector"
     };
 
     const windowElements = this.generateWindowElementMap(
-      this.state.windowTypeMap
+      this.state.windowIdentityMap
     );
 
     return (
@@ -466,7 +477,9 @@ class TrackerContainer extends React.Component<Props, State> {
             renderTile={(id, path) => (
               <MosaicWindow<number>
                 path={path}
-                title={TITLE_MAP[this.state.windowTypeMap[id.toString()]]}
+                title={
+                  TITLE_MAP[this.state.windowIdentityMap[id.toString()].type]
+                }
               >
                 {windowElements[id]}
               </MosaicWindow>

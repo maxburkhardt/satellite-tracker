@@ -45,7 +45,7 @@ export type SatellitePosition = {
 };
 
 export type TimedSatellitePosition = {
-  time: Moment;
+  time: Date; // we use Date here because this needs to get serialized into LocalStorage
   position: SatellitePosition;
 };
 

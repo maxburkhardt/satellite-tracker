@@ -1,5 +1,5 @@
 import { Satellite, LatLong } from "../util/SharedTypes";
-import { WindowTypeMap } from "../containers/TrackerContainer";
+import { WindowIdentityMap } from "../containers/TrackerContainer";
 import { MosaicNode } from "react-mosaic-component";
 
 export function getSavedSatellites(): Array<Satellite> {
@@ -81,15 +81,15 @@ export function getMosaicLayout(condensed: boolean): MosaicNode<number> | null {
   }
 }
 
-export function saveWindowTypeMap(windowTypeMap: WindowTypeMap): boolean {
+export function saveWindowTypeMap(windowTypeMap: WindowIdentityMap): boolean {
   localStorage.setItem("windowTypeMap", JSON.stringify(windowTypeMap));
   return true;
 }
 
-export function getWindowTypeMap(): WindowTypeMap | null {
+export function getWindowTypeMap(): WindowIdentityMap | null {
   const savedWindows = localStorage.getItem("windowTypeMap");
   if (savedWindows) {
-    return JSON.parse(savedWindows) as WindowTypeMap;
+    return JSON.parse(savedWindows) as WindowIdentityMap;
   } else {
     return null;
   }
