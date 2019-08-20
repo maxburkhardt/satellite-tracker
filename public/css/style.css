@@ -61,6 +61,10 @@ svg.radarSvg {
   margin: 5px;
 }
 
+.bp3-button-group .bp3-button {
+  margin: 0px;
+}
+
 .bp3-form-group .bp3-input-group {
   margin: 5px;
 }

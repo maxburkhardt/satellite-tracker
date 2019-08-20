@@ -6,7 +6,8 @@ import {
   Switch,
   FormGroup,
   InputGroup,
-  HTMLSelect
+  HTMLSelect,
+  ButtonGroup
 } from "@blueprintjs/core";
 import "react-table/react-table.css";
 import { Satellite } from "../util/SharedTypes";
@@ -141,18 +142,25 @@ class SatSelector extends React.Component<Props, State> {
               })
             }
           />
-          <Button onClick={this.submitNewSat}>Save</Button>
+          <Button onClick={this.submitNewSat} icon="saved">
+            Save
+          </Button>
         </FormGroup>
         <FormGroup label="Global Visibility">
-          <Button small onClick={() => this.props.bulkSetEnabledCallback(true)}>
-            Enable All
-          </Button>
-          <Button
-            small
-            onClick={() => this.props.bulkSetEnabledCallback(false)}
-          >
-            Disable All
-          </Button>
+          <ButtonGroup>
+            <Button
+              small
+              onClick={() => this.props.bulkSetEnabledCallback(true)}
+            >
+              Enable All
+            </Button>
+            <Button
+              small
+              onClick={() => this.props.bulkSetEnabledCallback(false)}
+            >
+              Disable All
+            </Button>
+          </ButtonGroup>
         </FormGroup>
         <ReactTable
           data={this.props.satData}

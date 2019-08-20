@@ -112,8 +112,12 @@ class Controls extends React.Component<Props, State> {
             value={this.state.longitudeInput}
             onChange={this.handleLongitudeInput}
           />
-          <Button onClick={this.updateLocation}>Set Location</Button>
-          <Button onClick={this.geolocateClick}>Geolocate me!</Button>
+          <Button onClick={this.updateLocation} icon="tick">
+            Set Location
+          </Button>
+          <Button onClick={this.geolocateClick} icon="geosearch">
+            Geolocate me!
+          </Button>
         </FormGroup>
       </div>
     );
