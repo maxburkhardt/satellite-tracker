@@ -246,9 +246,6 @@ class TrackerContainer extends React.Component<Props, State> {
   }
 
   viewPassDetailsCallback(satellite: string, startTime: Moment): void {
-    console.log(
-      `View pass details for ${satellite} at ${startTime.toString()}`
-    );
     const satelliteTle = getSavedSatellite(satellite);
     if (satelliteTle) {
       const details = getPassDetails(
@@ -256,7 +253,6 @@ class TrackerContainer extends React.Component<Props, State> {
         this.state.userLocation,
         startTime
       );
-      console.log(JSON.stringify(details));
       this.addWindowCallback("passDetails", {
         passData: details,
         userLocation: this.state.userLocation
