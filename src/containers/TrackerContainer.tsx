@@ -31,7 +31,8 @@ import {
   getDefaultSatellites,
   calculateSatellitePosition,
   getFuturePasses,
-  parseTleData
+  parseTleData,
+  getPassDetails
 } from "../data/Space";
 import {
   getSavedSatellites,
@@ -47,7 +48,7 @@ import {
   saveWindowTypeMap
 } from "../data/LocalStorage";
 import { inCondensedMode } from "../util/DisplayUtil";
-import moment from "moment";
+import moment, { Moment } from "moment";
 
 export type Props = {};
 
@@ -108,6 +109,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.onMosaicChange = this.onMosaicChange.bind(this);
     this.onMosaicRelease = this.onMosaicRelease.bind(this);
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
+    this.viewPassDetailsCallback = this.viewPassDetailsCallback.bind(this);
   }
 
   updateUserLocation(location: LatLong) {
@@ -230,13 +232,27 @@ class TrackerContainer extends React.Component<Props, State> {
     setTimeout(this.periodicProcessLocalSatData, 1000 * 15);
   }
 
-  updateSatPassesCallback(satellite: string) {
+  updateSatPassesCallback(satellite: string): void {
     const sat = getSavedSatellite(satellite);
     if (sat) {
       const satSpecificPasses = getFuturePasses(sat, this.state.userLocation);
       const passes = { ...this.state.satPasses };
       passes[satellite] = satSpecificPasses;
       this.setState({ satPasses: passes });
+    }
+  }
+
+  viewPassDetailsCallback(satellite: string, startTime: Moment): void {
+    console.log(
+      `View pass details for ${satellite} at ${startTime.toString()}`
+    );
+    const satelliteTle = getSavedSatellite(satellite);
+    if (satelliteTle) {
+      console.log(
+        JSON.stringify(
+          getPassDetails(satelliteTle, this.state.userLocation, startTime)
+        )
+      );
     }
   }
 
@@ -304,6 +320,7 @@ class TrackerContainer extends React.Component<Props, State> {
           satPasses={this.state.satPasses}
           requestedSelection={this.state.requestedPassTableSelection}
           updateSatPassesCallback={this.updateSatPassesCallback}
+          viewPassDetailsCallback={this.viewPassDetailsCallback}
         />
       );
     } else if (type === "selector") {

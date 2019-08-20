@@ -9,13 +9,14 @@ import {
   degreesLat,
   degreesLong
 } from "satellite.js";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import {
   Satellite,
   LatLong,
   SatellitePass,
   SatellitePosition,
-  SatelliteTle
+  SatelliteTle,
+  TimedSatellitePosition
 } from "../util/SharedTypes";
 import { saveSatellite } from "./LocalStorage";
 
@@ -160,4 +161,30 @@ export function getFuturePasses(
     timeIndex = moment(timeIndex).add(1, "minutes");
   }
   return passes;
+}
+
+export function getPassDetails(
+  tleData: Satellite,
+  observerCoords: LatLong,
+  startTime: Moment
+): Array<TimedSatellitePosition> {
+  const positions: Array<TimedSatellitePosition> = [];
+  let timePointer = moment(startTime.toDate());
+  while (true) {
+    const positionData = calculateSatellitePosition(
+      tleData,
+      observerCoords,
+      timePointer.toDate()
+    );
+    if (positionData.elevation >= 0) {
+      positions.push({
+        time: moment(timePointer.toDate()),
+        position: positionData
+      });
+    } else {
+      break;
+    }
+    timePointer = timePointer.add(1, "minutes");
+  }
+  return positions;
 }

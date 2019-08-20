@@ -1,17 +1,18 @@
 import React from "react";
-import ReactTable from "react-table";
+import ReactTable, { RowInfo } from "react-table";
 import "react-table/react-table.css";
 import ReactResizeDetector from "react-resize-detector";
 import { SatellitePosition, SatellitePass } from "../util/SharedTypes";
-import { HTMLSelect, FormGroup } from "@blueprintjs/core";
+import { HTMLSelect, FormGroup, Button } from "@blueprintjs/core";
 import { Moment } from "moment";
-import { radiansToDegrees } from "../util/DisplayUtil";
+import { radiansToDegrees, formatDate } from "../util/DisplayUtil";
 
 export type Props = {
   satData: Array<SatellitePosition>;
   satPasses: { [key: string]: Array<SatellitePass> };
   requestedSelection: string;
   updateSatPassesCallback: (satellite: string) => void;
+  viewPassDetailsCallback: (satellite: string, startTime: Moment) => void;
 };
 
 export type State = {
@@ -71,16 +72,12 @@ class PassTable extends React.Component<Props, State> {
     }
   }
 
-  formatDate(d: Moment): string {
-    return d.format("MM-DD HH:mm ZZ");
-  }
-
   render() {
     const columns = [
       {
         Header: "AOS",
         id: "aos",
-        accessor: (d: SatellitePass) => this.formatDate(d.aos)
+        accessor: (d: SatellitePass) => formatDate(d.aos)
       },
       {
         Header: "AOS Azimuth",
@@ -95,12 +92,29 @@ class PassTable extends React.Component<Props, State> {
       {
         Header: "LOS",
         id: "los",
-        accessor: (d: SatellitePass) => this.formatDate(d.los)
+        accessor: (d: SatellitePass) => formatDate(d.los)
       },
       {
         Header: "LOS Azimuth",
         id: "losAzimuth",
         accessor: (d: SatellitePass) => radiansToDegrees(d.losAzimuth)
+      },
+      {
+        Header: "Actions",
+        filterable: false,
+        Cell: (row: RowInfo) => (
+          <Button
+            small
+            onClick={() =>
+              this.props.viewPassDetailsCallback(
+                this.state.selected,
+                row.original.aos
+              )
+            }
+          >
+            See Details
+          </Button>
+        )
       }
     ];
     const satelliteOptions = this.props.satData.map(sat => (

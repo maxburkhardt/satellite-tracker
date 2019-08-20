@@ -44,6 +44,11 @@ export type SatellitePosition = {
   rangeSat: number;
 };
 
+export type TimedSatellitePosition = {
+  time: Moment;
+  position: SatellitePosition;
+};
+
 export type SatellitePass = {
   aos: Moment;
   maxElevation: number;
