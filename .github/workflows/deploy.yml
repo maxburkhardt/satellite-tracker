@@ -1,0 +1,23 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 'Check out repository'
+      uses: actions/checkout@v1
+    - name: 'Install Node'
+      uses: actions/setup-node@v1
+      with:
+        version: '10.x'
+    - name: 'npm install and build'
+      run: |
+        npm install
+        npm run build
