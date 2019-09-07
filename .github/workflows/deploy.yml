@@ -22,7 +22,7 @@ jobs:
         npm install
         npm run build
     - name: 'Deploy to firebase'
-      uses: w9jds/firebase-action@7d6b2b058813e1224cdd4db255b2f163ae4084d3
+      uses: maxburkhardt/firebase-action@85673a38f1936e186895daae0f60e3d74016594a
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       with:
