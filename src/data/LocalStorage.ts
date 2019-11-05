@@ -95,6 +95,20 @@ export function getWindowTypeMap(): WindowIdentityMap | null {
   }
 }
 
+export function getUseDarkTheme(): boolean {
+  const useDarkTheme = localStorage.getItem("useDarkTheme");
+  if (useDarkTheme && useDarkTheme === "true") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function saveUseDarkTheme(useDarkTheme: boolean): boolean {
+  localStorage.setItem("useDarkTheme", useDarkTheme.toString());
+  return true;
+}
+
 export function clearLocalData(): void {
   localStorage.clear();
   window.location.reload();

@@ -14,6 +14,8 @@ import { inCondensedMode } from "../util/DisplayUtil";
 export type Props = {
   resetDataCallback: () => void;
   addWindowCallback: (windowName: WindowType) => void;
+  themeToggleCallback: () => void;
+  useDarkTheme: boolean;
 };
 
 class MenuBar extends React.Component<Props> {
@@ -48,7 +50,7 @@ class MenuBar extends React.Component<Props> {
       </Menu>
     );
     return (
-      <Navbar>
+      <Navbar className={this.props.useDarkTheme ? "bp3-dark" : ""}>
         <Navbar.Group align={Alignment.LEFT}>
           <Navbar.Heading>Satellite Tracking</Navbar.Heading>
           <Navbar.Divider />
@@ -68,6 +70,13 @@ class MenuBar extends React.Component<Props> {
             }
           >
             {!inCondensedMode() && "GitHub"}
+          </Button>
+          <Button
+            icon={this.props.useDarkTheme ? "flash" : "moon"}
+            onClick={this.props.themeToggleCallback}
+          >
+            {!inCondensedMode() &&
+              (this.props.useDarkTheme ? "Light Mode" : "Dark Mode")}
           </Button>
         </Navbar.Group>
       </Navbar>

@@ -9,6 +9,7 @@ export type Props = {
   userLocation: LatLong;
   satData: Array<SatellitePosition>;
   requestPassTableSelectionCallback: (sat: string) => void;
+  useDarkTheme: boolean;
 };
 
 export type State = {
@@ -16,17 +17,10 @@ export type State = {
 };
 
 class SatMap extends React.Component<Props, State> {
+  private satMarkerSvg = require("../assets/sat_marker.svg");
   private satIcon = new L.Icon({
-    iconUrl: require("../assets/sat_marker.svg"),
-    iconRetinaUrl: require("../assets/sat_marker.svg"),
-    iconAnchor: [15, 15],
-    iconSize: [30, 30],
-    popupAnchor: [0, -15]
-  });
-
-  private groundStationIcon = new L.Icon({
-    iconUrl: require("../assets/ground_station.svg"),
-    iconRetinaUrl: require("../assets/ground_station.svg"),
+    iconUrl: this.satMarkerSvg,
+    iconRetinaUrl: this.satMarkerSvg,
     iconAnchor: [15, 15],
     iconSize: [30, 30],
     popupAnchor: [0, -15]
@@ -81,6 +75,17 @@ class SatMap extends React.Component<Props, State> {
   }
 
   render() {
+    const groundStationSvg = this.props.useDarkTheme
+      ? require("../assets/ground_station_light.svg")
+      : require("../assets/ground_station.svg");
+    const groundStationIcon = new L.Icon({
+      iconUrl: groundStationSvg,
+      iconRetinaUrl: groundStationSvg,
+      iconAnchor: [15, 15],
+      iconSize: [30, 30],
+      popupAnchor: [0, -15]
+    });
+
     const satMarkers: JSX.Element[] = this.props.satData.map(
       this.generateMarker
     );
@@ -90,13 +95,15 @@ class SatMap extends React.Component<Props, State> {
         zoom={this.state.zoom}
       >
         <TileLayer
-          // want dark mode?
-          // url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+          url={
+            this.props.useDarkTheme
+              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+              : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+          }
         />
         <Marker
           position={this.latLongToLeafletCoords(this.props.userLocation)}
-          icon={this.groundStationIcon}
+          icon={groundStationIcon}
         >
           <Popup>Your Location</Popup>
         </Marker>

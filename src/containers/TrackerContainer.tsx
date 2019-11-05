@@ -45,7 +45,9 @@ import {
   saveSatellite,
   clearLocalData,
   getWindowTypeMap,
-  saveWindowTypeMap
+  saveWindowTypeMap,
+  getUseDarkTheme,
+  saveUseDarkTheme
 } from "../data/LocalStorage";
 import { inCondensedMode } from "../util/DisplayUtil";
 import moment, { Moment } from "moment";
@@ -62,6 +64,7 @@ export type State = {
   mosaicRootNode: MosaicNode<number> | null;
   windowIdentityMap: WindowIdentityMap;
   condensedView: boolean;
+  useDarkTheme: boolean;
 };
 
 export type WindowType =
@@ -92,7 +95,8 @@ class TrackerContainer extends React.Component<Props, State> {
       requestedPassTableSelection: "",
       mosaicRootNode: rootNode,
       windowIdentityMap: windowMap,
-      condensedView: inCondensedMode()
+      condensedView: inCondensedMode(),
+      useDarkTheme: getUseDarkTheme()
     };
     this.addNewTleCallback = this.addNewTleCallback.bind(this);
     this.updateUserLocation = this.updateUserLocation.bind(this);
@@ -113,6 +117,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.onMosaicRelease = this.onMosaicRelease.bind(this);
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
     this.viewPassDetailsCallback = this.viewPassDetailsCallback.bind(this);
+    this.toggleTheme = this.toggleTheme.bind(this);
   }
 
   updateUserLocation(location: LatLong) {
@@ -347,6 +352,7 @@ class TrackerContainer extends React.Component<Props, State> {
           requestPassTableSelectionCallback={
             this.requestPassTableSelectionCallback
           }
+          useDarkTheme={this.state.useDarkTheme}
         />
       );
     }
@@ -431,6 +437,16 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
+  toggleTheme(): void {
+    if (this.state.useDarkTheme) {
+      this.setState({ useDarkTheme: false });
+      saveUseDarkTheme(false);
+    } else {
+      this.setState({ useDarkTheme: true });
+      saveUseDarkTheme(true);
+    }
+  }
+
   componentDidMount() {
     // schedule periodic updating of locations
     this.periodicProcessLocalSatData();
@@ -467,9 +483,16 @@ class TrackerContainer extends React.Component<Props, State> {
         <MenuBar
           addWindowCallback={this.addWindowCallback}
           resetDataCallback={clearLocalData}
+          useDarkTheme={this.state.useDarkTheme}
+          themeToggleCallback={this.toggleTheme}
         />
         <div className="trackerWindow">
           <Mosaic
+            className={
+              this.state.useDarkTheme
+                ? "mosaic-blueprint-theme bp3-dark"
+                : "mosaic-blueprint-theme"
+            }
             renderTile={(id, path) => (
               <MosaicWindow<number>
                 path={path}

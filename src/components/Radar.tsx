@@ -79,7 +79,6 @@ class Radar extends React.Component<Props, State> {
     }
     const xCenter = this.state.width / 2;
     const yCenter = this.state.height / 2;
-    const uiColor = "rgb(0,0,0)";
     const satellites = this.getOverhead().map(sat =>
       this.generateSatIcon(sat, xCenter, yCenter, radius)
     );
@@ -91,33 +90,19 @@ class Radar extends React.Component<Props, State> {
           onResize={this.onResize}
         />
         <svg className="radarSvg" xmlns="http://www.w3.org/2000/svg">
-          <circle
-            cx={xCenter}
-            cy={yCenter}
-            r={radius}
-            fill="none"
-            stroke={uiColor}
-          />
-          <circle
-            cx={xCenter}
-            cy={yCenter}
-            r={radius / 2}
-            fill="none"
-            stroke={uiColor}
-          />
+          <circle cx={xCenter} cy={yCenter} r={radius} fill="none" />
+          <circle cx={xCenter} cy={yCenter} r={radius / 2} fill="none" />
           <line
             x1={xCenter - radius}
             y1={yCenter}
             x2={xCenter + radius}
             y2={yCenter}
-            stroke={uiColor}
           />
           <line
             x1={xCenter}
             y1={yCenter - radius}
             x2={xCenter}
             y2={yCenter + radius}
-            stroke={uiColor}
           />
           {satellites}
         </svg>

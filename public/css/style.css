@@ -49,6 +49,30 @@ svg.radarSvg {
   height: 100%;
 }
 
+.radarSvg line {
+  stroke: #000;
+}
+
+.bp3-dark .radarSvg line {
+  stroke: #f5f8fa;
+}
+
+.radarSvg circle {
+  stroke: #000;
+}
+
+.bp3-dark .radarSvg circle {
+  stroke: #f5f8fa;
+}
+
+.radarSvg g {
+  fill: #000;
+}
+
+.bp3-dark .radarSvg g {
+  fill: #f5f8fa;
+}
+
 .underline {
   text-decoration: underline;
 }
@@ -72,6 +96,11 @@ svg.radarSvg {
 div.scroll-container {
   height: 100%;
   overflow: scroll;
+  scrollbar-width: none;
+}
+
+div.scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .bp3-navbar .bp3-button {
