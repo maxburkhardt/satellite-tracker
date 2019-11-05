@@ -45,7 +45,9 @@ class Radar extends React.Component<Props, State> {
     return (
       <g
         className="pointer"
-        onClick={() => this.props.requestPassTableSelectionCallback(sat.name)}
+        onClick={(): void =>
+          this.props.requestPassTableSelectionCallback(sat.name)
+        }
         key={sat.name}
       >
         <rect
@@ -71,7 +73,7 @@ class Radar extends React.Component<Props, State> {
     return overhead;
   }
 
-  render() {
+  render(): React.ReactNode {
     let radius = Math.min(this.state.width, this.state.height) / 2 - 10;
     if (radius <= 0) {
       // Sometimes radius is negative during load. Use a default in this case to avoid console errors.

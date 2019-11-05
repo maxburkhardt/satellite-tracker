@@ -42,7 +42,7 @@ class SatMap extends React.Component<Props, State> {
     this.onResize = this.onResize.bind(this);
   }
 
-  handleSatClick(satName: string) {
+  handleSatClick(satName: string): void {
     this.props.requestPassTableSelectionCallback(satName);
   }
 
@@ -55,7 +55,7 @@ class SatMap extends React.Component<Props, State> {
         position={[sat.latitude, sat.longitude]}
         key={sat.name}
         icon={this.satIcon}
-        onClick={() => this.handleSatClick(sat.name)}
+        onClick={(): void => this.handleSatClick(sat.name)}
       >
         <Popup>
           <strong>{sat.name}</strong>
@@ -80,11 +80,11 @@ class SatMap extends React.Component<Props, State> {
     return [position.latitude, position.longitude];
   }
 
-  onResize(width: number, height: number) {
+  onResize(width: number, height: number): void {
     this.setState({ height: height, width: width });
   }
 
-  render() {
+  render(): React.ReactNode {
     const groundStationSvg = this.props.useDarkTheme
       ? require("../assets/ground_station_light.svg")
       : require("../assets/ground_station.svg");

@@ -32,7 +32,7 @@ class Controls extends React.Component<Props, State> {
     this.updateLocation = this.updateLocation.bind(this);
   }
 
-  getGeoSuccess(position: GeolocationOutput) {
+  getGeoSuccess(position: GeolocationOutput): void {
     this.setState({
       latitudeInput: position.coords.latitude.toString(),
       longitudeInput: position.coords.longitude.toString()
@@ -44,11 +44,11 @@ class Controls extends React.Component<Props, State> {
     this.props.updateLocationCallback(newPosition);
   }
 
-  getGeoError(positionError: GeolocationError) {
+  getGeoError(positionError: GeolocationError): void {
     alert(`Geo error ${positionError.code}: ${positionError.message}`);
   }
 
-  geolocateClick(event: React.SyntheticEvent) {
+  geolocateClick(event: React.SyntheticEvent): void {
     event.preventDefault();
     const nav = window.navigator;
     if ("geolocation" in nav) {
@@ -79,24 +79,24 @@ class Controls extends React.Component<Props, State> {
     }
   }
 
-  handleLatitudeInput(event: React.SyntheticEvent) {
+  handleLatitudeInput(event: React.SyntheticEvent): void {
     const target = event.target as HTMLInputElement;
     this.setState({ latitudeInput: target.value });
   }
 
-  handleLongitudeInput(event: React.SyntheticEvent) {
+  handleLongitudeInput(event: React.SyntheticEvent): void {
     const target = event.target as HTMLInputElement;
     this.setState({ longitudeInput: target.value });
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.setState({
       latitudeInput: this.props.userLocation.latitude.toString(),
       longitudeInput: this.props.userLocation.longitude.toString()
     });
   }
 
-  render() {
+  render(): React.ReactNode {
     return (
       <div className="scroll-container">
         <FormGroup label="Ground station location">

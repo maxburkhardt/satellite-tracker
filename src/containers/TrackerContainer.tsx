@@ -74,7 +74,7 @@ export type WindowType =
   | "passDetails"
   | "map"
   | "selector";
-export type WindowIdentity = { type: WindowType; props?: any };
+export type WindowIdentity = { type: WindowType; props?: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
 export type WindowIdentityMap = { [key: string]: WindowIdentity };
 export type WindowElementMap = { [key: string]: JSX.Element };
 
@@ -120,7 +120,7 @@ class TrackerContainer extends React.Component<Props, State> {
     this.toggleTheme = this.toggleTheme.bind(this);
   }
 
-  updateUserLocation(location: LatLong) {
+  updateUserLocation(location: LatLong): void {
     // re-process local data since changing observer changes satellite position
     this.setState({ userLocation: location }, () => this.processLocalSatData());
     saveUserLocation(location);
@@ -199,11 +199,11 @@ class TrackerContainer extends React.Component<Props, State> {
     };
   }
 
-  processLocalSatData() {
+  processLocalSatData(): void {
     const calculated: Array<SatellitePosition> = [];
     let needsRefresh = false;
     this.setState({ satProperties: getSavedSatellites() }, () => {
-      for (let sat of getSavedSatellites()) {
+      for (const sat of getSavedSatellites()) {
         try {
           if (sat.enabled) {
             calculated.push(
@@ -235,7 +235,7 @@ class TrackerContainer extends React.Component<Props, State> {
     });
   }
 
-  periodicProcessLocalSatData() {
+  periodicProcessLocalSatData(): void {
     this.processLocalSatData();
     setTimeout(this.periodicProcessLocalSatData, 1000 * 15);
   }
@@ -298,7 +298,7 @@ class TrackerContainer extends React.Component<Props, State> {
 
   generateWindowElementMap(identities: WindowIdentityMap): WindowElementMap {
     const elementMap: WindowElementMap = {};
-    for (let i of Object.keys(identities)) {
+    for (const i of Object.keys(identities)) {
       elementMap[i] = this.createNewWindow(identities[i]);
     }
     return elementMap;
@@ -358,6 +358,7 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   addWindowCallback(windowName: WindowType, additionalProps?: any): void {
     let newRootNode: MosaicNode<number>;
     const newWindow = Object.keys(this.state.windowIdentityMap).length + 1;
@@ -413,17 +414,18 @@ class TrackerContainer extends React.Component<Props, State> {
     );
   }
 
-  private onMosaicChange = (currentNode: MosaicNode<number> | null) => {
+  private onMosaicChange = (currentNode: MosaicNode<number> | null): void => {
     saveMosaicLayout(this.state.condensedView, currentNode);
     saveWindowTypeMap(this.state.windowIdentityMap);
     this.setState({ mosaicRootNode: currentNode });
   };
 
-  private onMosaicRelease = (currentNode: MosaicNode<number> | null) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private onMosaicRelease = (currentNode: MosaicNode<number> | null): void => {
     // do nothing
   };
 
-  updateWindowDimensions() {
+  updateWindowDimensions(): void {
     if (inCondensedMode() && this.state.condensedView === false) {
       this.setState({
         mosaicRootNode: this.getCondensedMosaicLayout().rootNode,
@@ -447,7 +449,7 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     // schedule periodic updating of locations
     this.periodicProcessLocalSatData();
     // register event handler to deal with responsivity
@@ -458,11 +460,11 @@ class TrackerContainer extends React.Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     window.removeEventListener("resize", this.updateWindowDimensions);
   }
 
-  render() {
+  render(): React.ReactNode {
     // const ELEMENT_MAP: { [key: string]: JSX.Element } = ;
 
     const TITLE_MAP: { [key: string]: string } = {
@@ -493,7 +495,7 @@ class TrackerContainer extends React.Component<Props, State> {
                 ? "mosaic-blueprint-theme bp3-dark"
                 : "mosaic-blueprint-theme"
             }
-            renderTile={(id, path) => (
+            renderTile={(id, path): JSX.Element => (
               <MosaicWindow<number>
                 path={path}
                 title={

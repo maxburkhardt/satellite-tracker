@@ -23,27 +23,28 @@ class PassDetails extends React.Component<Props, State> {
     this.onResize = this.onResize.bind(this);
   }
 
-  onResize(width: number, height: number) {
+  onResize(width: number, height: number): void {
     this.setState({ numRows: Math.floor((height - 140) / 33) });
   }
 
-  render() {
+  render(): React.ReactNode {
     const columns = [
       {
         Header: "Time",
         id: "time",
-        accessor: (d: TimedSatellitePosition) => formatDate(moment(d.time))
+        accessor: (d: TimedSatellitePosition): string =>
+          formatDate(moment(d.time))
       },
       {
         Header: "Azimuth",
         id: "azimuth",
-        accessor: (d: TimedSatellitePosition) =>
+        accessor: (d: TimedSatellitePosition): string =>
           radiansToDegrees(d.position.azimuth)
       },
       {
         Header: "Elevation",
         id: "elevation",
-        accessor: (d: TimedSatellitePosition) =>
+        accessor: (d: TimedSatellitePosition): string =>
           radiansToDegrees(d.position.elevation)
       }
     ];

@@ -28,17 +28,17 @@ class PassTable extends React.Component<Props, State> {
     this.onResize = this.onResize.bind(this);
   }
 
-  onResize(width: number, height: number) {
+  onResize(width: number, height: number): void {
     this.setState({ numRows: Math.floor((height - 115) / 33) });
   }
 
-  handleChange(event: React.SyntheticEvent) {
+  handleChange(event: React.SyntheticEvent): void {
     const target = event.target as HTMLSelectElement;
     this.setState({ selected: target.value });
     this.props.updateSatPassesCallback(target.value);
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (this.props.satData.length > 0) {
       const firstSatName = this.props.satData[0].name;
       this.setState({ selected: firstSatName }, () =>
@@ -47,7 +47,7 @@ class PassTable extends React.Component<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props): void {
     if (
       prevProps.satData === null ||
       prevProps.satData.length !== this.props.satData.length
@@ -72,40 +72,40 @@ class PassTable extends React.Component<Props, State> {
     }
   }
 
-  render() {
+  render(): React.ReactNode {
     const columns = [
       {
         Header: "AOS",
         id: "aos",
-        accessor: (d: SatellitePass) => formatDate(d.aos)
+        accessor: (d: SatellitePass): string => formatDate(d.aos)
       },
       {
         Header: "AOS Azimuth",
         id: "aosAzimuth",
-        accessor: (d: SatellitePass) => radiansToDegrees(d.aosAzimuth)
+        accessor: (d: SatellitePass): string => radiansToDegrees(d.aosAzimuth)
       },
       {
         Header: "Max Elevation",
         id: "maxElevation",
-        accessor: (d: SatellitePass) => radiansToDegrees(d.maxElevation)
+        accessor: (d: SatellitePass): string => radiansToDegrees(d.maxElevation)
       },
       {
         Header: "LOS",
         id: "los",
-        accessor: (d: SatellitePass) => formatDate(d.los)
+        accessor: (d: SatellitePass): string => formatDate(d.los)
       },
       {
         Header: "LOS Azimuth",
         id: "losAzimuth",
-        accessor: (d: SatellitePass) => radiansToDegrees(d.losAzimuth)
+        accessor: (d: SatellitePass): string => radiansToDegrees(d.losAzimuth)
       },
       {
         Header: "Actions",
         filterable: false,
-        Cell: (row: RowInfo) => (
+        Cell: (row: RowInfo): React.ReactNode => (
           <Button
             small
-            onClick={() =>
+            onClick={(): void =>
               this.props.viewPassDetailsCallback(
                 this.state.selected,
                 row.original.aos

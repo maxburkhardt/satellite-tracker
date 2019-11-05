@@ -41,11 +41,11 @@ class SatSelector extends React.Component<Props, State> {
     this.submitNewSat = this.submitNewSat.bind(this);
   }
 
-  onResize(width: number, height: number) {
+  onResize(width: number, height: number): void {
     this.setState({ numRows: Math.floor((height - 384) / 45) });
   }
 
-  submitNewSat() {
+  submitNewSat(): void {
     this.props.addNewTleCallback(
       this.state.newSatName,
       this.state.newSatLine1,
@@ -54,21 +54,24 @@ class SatSelector extends React.Component<Props, State> {
     this.setState({ newSatName: "", newSatLine1: "", newSatLine2: "" });
   }
 
-  render() {
+  render(): React.ReactNode {
     const columns = [
       {
         Header: "Name",
         accessor: "name",
-        filterMethod: (filter: Filter, row: { [key: string]: string }) =>
+        filterMethod: (
+          filter: Filter,
+          row: { [key: string]: string }
+        ): boolean =>
           row[filter.id].toLowerCase().includes(filter.value.toLowerCase())
       },
       {
         Header: "Enabled?",
         accessor: "enabled",
-        Cell: (row: RowInfo) => (
+        Cell: (row: RowInfo): JSX.Element => (
           <Switch
             checked={row.original.enabled}
-            onChange={() =>
+            onChange={(): void =>
               this.props.updateSatEnabledCallback(row.original.name)
             }
           />
@@ -79,17 +82,20 @@ class SatSelector extends React.Component<Props, State> {
         }: {
           filter: Filter;
           onChange: (selected: string) => void;
-        }) => (
+        }): JSX.Element => (
           <HTMLSelect
             value={filter ? filter.value : "all"}
-            onChange={event => onChange(event.target.value)}
+            onChange={(event): void => onChange(event.target.value)}
           >
             <option value="all">All</option>
             <option value="enabled">Enabled</option>
             <option value="disabled">Disabled</option>
           </HTMLSelect>
         ),
-        filterMethod: (filter: Filter, row: { [key: string]: boolean }) => {
+        filterMethod: (
+          filter: Filter,
+          row: { [key: string]: boolean }
+        ): boolean => {
           if (filter.value === "enabled") {
             return row[filter.id];
           } else if (filter.value === "disabled") {
@@ -101,9 +107,11 @@ class SatSelector extends React.Component<Props, State> {
       },
       {
         Header: "Actions",
-        Cell: (row: RowInfo) => (
+        Cell: (row: RowInfo): React.ReactNode => (
           <Button
-            onClick={() => this.props.deleteSatCallback(row.original.name)}
+            onClick={(): void =>
+              this.props.deleteSatCallback(row.original.name)
+            }
           >
             Delete
           </Button>
@@ -118,7 +126,7 @@ class SatSelector extends React.Component<Props, State> {
           <InputGroup
             value={this.state.newSatName}
             placeholder="Name"
-            onChange={(event: React.SyntheticEvent) =>
+            onChange={(event: React.SyntheticEvent): void =>
               this.setState({
                 newSatName: (event.target as HTMLInputElement).value
               })
@@ -127,7 +135,7 @@ class SatSelector extends React.Component<Props, State> {
           <InputGroup
             value={this.state.newSatLine1}
             placeholder="TLE Line 1"
-            onChange={(event: React.SyntheticEvent) =>
+            onChange={(event: React.SyntheticEvent): void =>
               this.setState({
                 newSatLine1: (event.target as HTMLInputElement).value
               })
@@ -136,7 +144,7 @@ class SatSelector extends React.Component<Props, State> {
           <InputGroup
             value={this.state.newSatLine2}
             placeholder="TLE Line 2"
-            onChange={(event: React.SyntheticEvent) =>
+            onChange={(event: React.SyntheticEvent): void =>
               this.setState({
                 newSatLine2: (event.target as HTMLInputElement).value
               })
@@ -150,13 +158,13 @@ class SatSelector extends React.Component<Props, State> {
           <ButtonGroup>
             <Button
               small
-              onClick={() => this.props.bulkSetEnabledCallback(true)}
+              onClick={(): void => this.props.bulkSetEnabledCallback(true)}
             >
               Enable All
             </Button>
             <Button
               small
-              onClick={() => this.props.bulkSetEnabledCallback(false)}
+              onClick={(): void => this.props.bulkSetEnabledCallback(false)}
             >
               Disable All
             </Button>

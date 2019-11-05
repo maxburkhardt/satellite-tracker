@@ -19,33 +19,33 @@ export type Props = {
 };
 
 class MenuBar extends React.Component<Props> {
-  render() {
+  render(): React.ReactNode {
     const addWindowMenu = (
       <Menu>
         <MenuItem
           icon="dashboard"
           text="Controls"
-          onClick={() => this.props.addWindowCallback("controls")}
+          onClick={(): void => this.props.addWindowCallback("controls")}
         />
         <MenuItem
           icon="th"
           text="Pass Table"
-          onClick={() => this.props.addWindowCallback("passTable")}
+          onClick={(): void => this.props.addWindowCallback("passTable")}
         />
         <MenuItem
           icon="locate"
           text="Radar"
-          onClick={() => this.props.addWindowCallback("radar")}
+          onClick={(): void => this.props.addWindowCallback("radar")}
         />
         <MenuItem
           icon="globe"
           text="Map"
-          onClick={() => this.props.addWindowCallback("map")}
+          onClick={(): void => this.props.addWindowCallback("map")}
         />
         <MenuItem
           icon="satellite"
           text="Satellite Selector"
-          onClick={() => this.props.addWindowCallback("selector")}
+          onClick={(): void => this.props.addWindowCallback("selector")}
         />
       </Menu>
     );
@@ -62,7 +62,7 @@ class MenuBar extends React.Component<Props> {
           </Button>
           <Button
             icon="git-branch"
-            onClick={() =>
+            onClick={(): Window | null =>
               window.open(
                 "https://github.com/maxburkhardt/satellite-tracker",
                 "_blank"
