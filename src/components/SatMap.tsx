@@ -4,6 +4,7 @@ import L from "leaflet";
 import { Map, Marker, Popup, TileLayer } from "react-leaflet";
 import { LatLong, SatellitePosition } from "../util/SharedTypes";
 import { radiansToDegrees } from "../util/DisplayUtil";
+import ReactResizeDetector from "react-resize-detector";
 
 export type Props = {
   userLocation: LatLong;
@@ -14,6 +15,8 @@ export type Props = {
 
 export type State = {
   zoom: number;
+  height: number;
+  width: number;
 };
 
 class SatMap extends React.Component<Props, State> {
@@ -29,11 +32,14 @@ class SatMap extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      zoom: 5
+      zoom: 5,
+      height: 100,
+      width: 100
     };
 
     this.handleSatClick = this.handleSatClick.bind(this);
     this.generateMarker = this.generateMarker.bind(this);
+    this.onResize = this.onResize.bind(this);
   }
 
   handleSatClick(satName: string) {
@@ -74,6 +80,10 @@ class SatMap extends React.Component<Props, State> {
     return [position.latitude, position.longitude];
   }
 
+  onResize(width: number, height: number) {
+    this.setState({ height: height, width: width });
+  }
+
   render() {
     const groundStationSvg = this.props.useDarkTheme
       ? require("../assets/ground_station_light.svg")
@@ -90,25 +100,34 @@ class SatMap extends React.Component<Props, State> {
       this.generateMarker
     );
     return (
-      <Map
-        center={this.latLongToLeafletCoords(this.props.userLocation)}
-        zoom={this.state.zoom}
-      >
-        <TileLayer
-          url={
-            this.props.useDarkTheme
-              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
-              : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-          }
+      <React.Fragment>
+        <ReactResizeDetector
+          handleHeight
+          handleWidth
+          onResize={this.onResize}
         />
-        <Marker
-          position={this.latLongToLeafletCoords(this.props.userLocation)}
-          icon={groundStationIcon}
+        <Map
+          center={this.latLongToLeafletCoords(this.props.userLocation)}
+          zoom={this.state.zoom}
+          width={this.state.width}
+          height={this.state.height}
         >
-          <Popup>Your Location</Popup>
-        </Marker>
-        {satMarkers}
-      </Map>
+          <TileLayer
+            url={
+              this.props.useDarkTheme
+                ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+                : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+            }
+          />
+          <Marker
+            position={this.latLongToLeafletCoords(this.props.userLocation)}
+            icon={groundStationIcon}
+          >
+            <Popup>Your Location</Popup>
+          </Marker>
+          {satMarkers}
+        </Map>
+      </React.Fragment>
     );
   }
 }
