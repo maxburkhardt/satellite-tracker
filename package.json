@@ -16,7 +16,7 @@
     "react-leaflet": "^2.5.0",
     "react-mosaic-component": "^3.2.0",
     "react-resize-detector": "^4.2.1",
-    "react-scripts": "3.0.1",
+    "react-scripts": "^3.4.1",
     "react-table": "^6.10.3",
     "satellite.js": "^3.0.1",
     "style-loader": "^0.23.1",
