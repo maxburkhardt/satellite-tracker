@@ -11,7 +11,7 @@
     "prettier": "prettier --write src/**/*.ts src/**/*.tsx"
   },
   "engines": {
-    "node": "8"
+    "node": "10"
   },
   "main": "lib/index.js",
   "dependencies": {
